@@ -1,0 +1,76 @@
+{
+  "[css]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[html]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[yaml]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[zig]": {
+    "editor.defaultFormatter": "ziglang.vscode-zig"
+  },
+  "editor.codeActionsOnSave": {
+    "source.addMissingImports": true,
+    "source.fixAll.eslint": true
+  },
+  "editor.formatOnSave": true,
+  "editor.rulers": [
+    100
+  ],
+  "files.exclude": {
+    ".editorconfig": true,
+    ".eslintignore": true,
+    ".eslintrc.json": true,
+    ".github": true,
+    ".github/workflows/ci.yml": true,
+    ".gitignore": true,
+    ".node-version": true,
+    ".prettierignore": true,
+    ".prettierrc.json": true,
+    ".swcrc": true,
+    ".vscode": true,
+    ".vscode/extensions.json": true,
+    ".vscode/settings.json": true,
+    "ci.sh": true,
+    "jest.config.json": true,
+    "tsconfig.base.json": true,
+    "tsconfig.eslint.json": true,
+    "tsconfig.json": true,
+    "zig-cache": true,
+    "zig-out": true
+  },
+  "json.schemaDownload.enable": true,
+  "json.schemas": [
+    {
+      "fileMatch": [
+        "onecfg*.json"
+      ],
+      "url": "https://raw.githubusercontent.com/clebert/onecfg-rust/main/schema.json"
+    }
+  ],
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "zig.buildOnSave": true,
+  "zig.initialSetupDone": true,
+  "zig.zls.enableBuildOnSave": true,
+  "zig.zls.enableInlayHints": false
+}

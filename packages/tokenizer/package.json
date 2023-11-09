@@ -1,0 +1,23 @@
+{
+  "name": "@llama2/tokenizer",
+  "version": "1.0.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/clebert/llama2.ts.git",
+    "directory": "packages/tokenizer"
+  },
+  "license": "MIT",
+  "author": "Clemens Akens",
+  "type": "module",
+  "exports": "./lib/mod.js",
+  "files": [
+    "lib"
+  ],
+  "devDependencies": {
+    "@jest/globals": "^29.7.0",
+    "@llama2/loader": "*"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

@@ -1,0 +1,15 @@
+jobs:
+  CI:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v3
+      with:
+        node-version-file: .node-version
+    - uses: bahmutov/npm-install@v1
+    - uses: goto-bus-stop/setup-zig@v2
+    - run: bash ./ci.sh
+name: CI
+on:
+  pull_request: {}
+  push: {}

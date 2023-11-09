@@ -1,0 +1,25 @@
+{
+  "name": "@llama2/loader",
+  "version": "1.0.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/clebert/llama2.ts.git",
+    "directory": "packages/loader"
+  },
+  "license": "MIT",
+  "author": "Clemens Akens",
+  "type": "module",
+  "exports": "./lib/mod.js",
+  "files": [
+    "lib"
+  ],
+  "dependencies": {
+    "@llama2/decoder": "*"
+  },
+  "devDependencies": {
+    "@jest/globals": "^29.7.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

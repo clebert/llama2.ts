@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "checkJs": true,
+    "noEmit": true,
+    "resolveJsonModule": true
+  },
+  "exclude": [
+    "coverage",
+    "packages/*/lib"
+  ],
+  "extends": [
+    "./tsconfig.base.json"
+  ],
+  "include": [
+    "**/*"
+  ],
+  "references": [
+    {
+      "path": "packages/decoder"
+    },
+    {
+      "path": "packages/loader"
+    },
+    {
+      "path": "packages/node"
+    },
+    {
+      "path": "packages/tokenizer"
+    }
+  ]
+}

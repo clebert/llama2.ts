@@ -1,0 +1,9 @@
+{
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@llama2/decoder": "*",
+    "@llama2/loader": "*",
+    "@llama2/tokenizer": "*"
+  }
+}

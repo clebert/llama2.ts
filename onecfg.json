@@ -1,0 +1,101 @@
+{
+  "extends": [
+    "https://raw.githubusercontent.com/clebert/onecfg-lib/main/lib/onecfg-editorconfig.json",
+    "https://raw.githubusercontent.com/clebert/onecfg-lib/main/lib/onecfg-eslint.json",
+    "https://raw.githubusercontent.com/clebert/onecfg-lib/main/lib/onecfg-git.json",
+    "https://raw.githubusercontent.com/clebert/onecfg-lib/main/lib/onecfg-github-ci.json",
+    "https://raw.githubusercontent.com/clebert/onecfg-lib/main/lib/onecfg-github-ci-node.json",
+    "https://raw.githubusercontent.com/clebert/onecfg-lib/main/lib/onecfg-github-ci-npm.json",
+    "https://raw.githubusercontent.com/clebert/onecfg-lib/main/lib/onecfg-jest.json",
+    "https://raw.githubusercontent.com/clebert/onecfg-lib/main/lib/onecfg-node.json",
+    "https://raw.githubusercontent.com/clebert/onecfg-lib/main/lib/onecfg-prettier.json",
+    "https://raw.githubusercontent.com/clebert/onecfg-lib/main/lib/onecfg-swc.json",
+    "https://raw.githubusercontent.com/clebert/onecfg-lib/main/lib/onecfg-typescript.json",
+    "https://raw.githubusercontent.com/clebert/onecfg-lib/main/lib/onecfg-typescript-eslint.json",
+    "https://raw.githubusercontent.com/clebert/onecfg-lib/main/lib/onecfg-vscode.json",
+    "https://raw.githubusercontent.com/clebert/onecfg-lib/main/lib/onecfg-zig.json"
+  ],
+  "patches": {
+    ".eslintignore": [
+      {
+        "value": ["/packages/*/lib"]
+      }
+    ],
+    ".eslintrc.json": [
+      {
+        "value": {
+          "rules": {
+            "import/no-relative-packages": "error"
+          }
+        }
+      }
+    ],
+    ".github/workflows/ci.yml": [
+      {
+        "value": {
+          "jobs": {
+            "CI": {
+              "steps": [{ "uses": "goto-bus-stop/setup-zig@v2" }]
+            }
+          }
+        }
+      }
+    ],
+    ".gitignore": [
+      {
+        "value": [
+          "/models/*",
+          "!/models/tinystories_15m",
+          "!/models/tinystories_260k",
+          "/packages/*/lib",
+          "*.tsbuildinfo",
+          ".turbo",
+          "zig-cache",
+          "zig-out"
+        ]
+      }
+    ],
+    ".prettierignore": [
+      {
+        "value": ["/packages/*/lib"]
+      }
+    ],
+    "ci.sh": [
+      {
+        "value": ["npm run format:check", "npm run lint", "npm test", "npm run compile"]
+      }
+    ],
+    "jest.config.json": [
+      {
+        "value": {
+          "coverageThreshold": {
+            "global": { "branches": 0, "functions": 0, "lines": 0, "statements": 0 }
+          },
+          "moduleNameMapper": {
+            "@llama2/(.*)": "<rootDir>/packages/$1/src/mod.ts"
+          }
+        }
+      }
+    ],
+    "tsconfig.json": [
+      {
+        "value": {
+          "exclude": ["packages/*/lib"],
+          "references": [
+            { "path": "packages/decoder" },
+            { "path": "packages/loader" },
+            { "path": "packages/node" },
+            { "path": "packages/tokenizer" }
+          ]
+        }
+      }
+    ],
+    "tsconfig.base.json": [
+      {
+        "value": {
+          "compilerOptions": { "composite": true, "incremental": true }
+        }
+      }
+    ]
+  }
+}

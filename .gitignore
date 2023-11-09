@@ -1,0 +1,12 @@
+/coverage
+/node_modules
+/zig-cache
+/zig-out
+/models/*
+!/models/tinystories_15m
+!/models/tinystories_260k
+/packages/*/lib
+*.tsbuildinfo
+.turbo
+zig-cache
+zig-out

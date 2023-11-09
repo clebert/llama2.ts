@@ -1,0 +1,39 @@
+{
+  "clearMocks": true,
+  "collectCoverage": true,
+  "coverageThreshold": {
+    "global": {
+      "branches": 0,
+      "functions": 0,
+      "lines": 0,
+      "statements": 0
+    }
+  },
+  "extensionsToTreatAsEsm": [
+    ".ts",
+    ".tsx"
+  ],
+  "moduleFileExtensions": [
+    "js",
+    "mjs",
+    "cjs",
+    "cts",
+    "jsx",
+    "ts",
+    "tsx",
+    "json",
+    "node"
+  ],
+  "moduleNameMapper": {
+    "@llama2/(.*)": "<rootDir>/packages/$1/src/mod.ts",
+    "^(\\.{1,2}/.*)\\.c?js$": "$1"
+  },
+  "restoreMocks": true,
+  "testMatch": [
+    "**/src/**/*.test.{cts,ts,tsx}"
+  ],
+  "transform": {
+    "^.+\\.cts$": "@swc/jest",
+    "^.+\\.tsx?$": "@swc/jest"
+  }
+}
