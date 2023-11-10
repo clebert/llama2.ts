@@ -1,15 +1,15 @@
-import type { Vocab } from '@llama2/loader';
+import type { Vocab, VocabEntry } from '@llama2/loader';
 
 import { Tokenizer } from './tokenizer.js';
 import { beforeAll, expect, test } from '@jest/globals';
-import { createDataSource, loadVocab } from '@llama2/loader';
+import { createDataSource, loadHyperparams, loadVocab } from '@llama2/loader';
 import { open } from 'node:fs/promises';
 
 let vocab15m: Vocab;
 let vocab260k: Vocab;
 
 beforeAll(async () => {
-  const file15m = await open(`models/tinystories_15m/tokenizer.bin`);
+  const file15m = await open(`models/tinystories_15m.bin`);
 
   const dataSource15m = createDataSource(
     file15m.readableWebStream() as ReadableStream<ArrayBuffer>,
@@ -17,11 +17,13 @@ beforeAll(async () => {
 
   await dataSource15m.next();
 
-  vocab15m = await loadVocab(dataSource15m, 32000);
+  const hyperparams15m = await loadHyperparams(dataSource15m);
+
+  vocab15m = await loadVocab(dataSource15m, hyperparams15m.vocabSize);
 
   await dataSource15m.next(); // close stream
 
-  const file260k = await open(`models/tinystories_260k/tokenizer.bin`);
+  const file260k = await open(`models/tinystories_260k.bin`);
 
   const dataSource260k = createDataSource(
     file260k.readableWebStream() as ReadableStream<ArrayBuffer>,
@@ -29,9 +31,47 @@ beforeAll(async () => {
 
   await dataSource260k.next();
 
-  vocab260k = await loadVocab(dataSource260k, 512);
+  const hyperparams260k = await loadHyperparams(dataSource260k);
+
+  vocab260k = await loadVocab(dataSource260k, hyperparams260k.vocabSize);
 
   await dataSource260k.next(); // close stream
+});
+
+function createFakeVocab(...tokens: string[]): Vocab {
+  const entriesByTokenId: VocabEntry[] = [];
+  const entriesByToken = new Map<string, VocabEntry>();
+
+  tokens.forEach((token, tokenId) => {
+    const entry: VocabEntry = { tokenId, token, score: Math.random() };
+
+    entriesByTokenId.push(entry);
+    entriesByToken.set(entry.token, entry);
+  });
+
+  return { entriesByToken, entriesByTokenId };
+}
+
+test(`unsupported vocab`, () => {
+  expect(() => new Tokenizer(createFakeVocab(`foo`))).toThrow(
+    `Unsupported vocab detected. Expected '<unk>' at position 0 but found 'foo' instead.`,
+  );
+
+  expect(() => new Tokenizer(createFakeVocab(`<unk>`, `foo`))).toThrow(
+    `Unsupported vocab detected. Expected '<s>' at position 1 but found 'foo' instead.`,
+  );
+
+  expect(() => new Tokenizer(createFakeVocab(`<unk>`, `<s>`, `foo`))).toThrow(
+    `Unsupported vocab detected. Expected '</s>' at position 2 but found 'foo' instead.`,
+  );
+
+  expect(() => new Tokenizer(createFakeVocab(`<unk>`, `<s>`, `</s>`, `foo`))).toThrow(
+    `Unsupported vocab detected. Expected '<0x00>' at position 3 but found 'foo' instead.`,
+  );
+
+  expect(() => new Tokenizer(createFakeVocab(`<unk>`, `<s>`, `</s>`, `<0x00>`, `foo`))).toThrow(
+    `Unsupported vocab detected. Expected '<0x01>' at position 4 but found 'foo' instead.`,
+  );
 });
 
 test(`decode tokens`, () => {

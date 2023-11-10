@@ -1,47 +1,35 @@
 import { computeArgmax } from './compute_argmax.js';
 import { loadWasmModules } from './load_wasm_modules.js';
 import { Decoder } from '@llama2/decoder';
-import { createDataSource, loadCheckpoint, loadConfig, loadVocab } from '@llama2/loader';
+import { createDataSource, loadCheckpoint, loadHyperparams, loadVocab } from '@llama2/loader';
 import { Tokenizer } from '@llama2/tokenizer';
 import { open } from 'node:fs/promises';
-import { join } from 'node:path';
 import { stdout } from 'node:process';
 
 await loadWasmModules();
 
-// const modelPath = `models/tinystories_110m`;
-// const modelPath = `models/tinystories_42m`;
-const modelPath = `models/tinystories_15m`;
-// const modelPath = `models/tinystories_260k`;
+// const modelPath = `models/tinystories_110m.bin`;
+// const modelPath = `models/tinystories_42m.bin`;
+const modelPath = `models/tinystories_15m.bin`;
+// const modelPath = `models/tinystories_260k.bin`;
 
-const checkpointFile = await open(join(modelPath, `checkpoint_v1.bin`));
+const file = await open(modelPath);
+const dataSource = createDataSource(file.readableWebStream() as ReadableStream<ArrayBuffer>);
 
-const checkpointDataSource = createDataSource(
-  checkpointFile.readableWebStream() as ReadableStream<ArrayBuffer>,
-);
+await dataSource.next();
 
-await checkpointDataSource.next();
+const hyperparams = await loadHyperparams(dataSource);
 
-const config = await loadConfig(checkpointDataSource);
+console.log({ hyperparams });
 
-console.log({ config });
+const vocab = await loadVocab(dataSource, hyperparams.vocabSize);
+const sequenceLength = hyperparams.maxSequenceLength;
+const checkpoint = await loadCheckpoint(dataSource, hyperparams, { sequenceLength });
 
-const sequenceLength = config.maxSequenceLength;
-const checkpoint = await loadCheckpoint(checkpointDataSource, config, { sequenceLength });
+await file.close();
 
-await checkpointFile.close();
-
-const tokenizerFile = await open(join(modelPath, `tokenizer.bin`));
-
-const tokenizerDataSource = createDataSource(
-  tokenizerFile.readableWebStream() as ReadableStream<ArrayBuffer>,
-);
-
-await tokenizerDataSource.next();
-
-const vocab = await loadVocab(tokenizerDataSource, config.vocabSize);
 const tokenizer = new Tokenizer(vocab);
-const decoder = new Decoder(config, checkpoint);
+const decoder = new Decoder(hyperparams, checkpoint);
 
 const tokenIds = [tokenizer.bosTokenId];
 

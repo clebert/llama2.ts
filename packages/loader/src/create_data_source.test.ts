@@ -23,7 +23,7 @@ test(`empty source data`, async () => {
   await dataSource.next();
   await dataSource.next();
 
-  await expect(dataSource.next(targetChunk)).rejects.toThrow(`unexpected end of stream`);
+  await expect(dataSource.next(targetChunk)).rejects.toThrow(`Unexpected end of stream.`);
 });
 
 test(`exhausted source data: s -> tt`, async () => {
@@ -32,7 +32,7 @@ test(`exhausted source data: s -> tt`, async () => {
 
   await dataSource.next();
 
-  await expect(dataSource.next(targetChunk)).rejects.toThrow(`unexpected end of stream`);
+  await expect(dataSource.next(targetChunk)).rejects.toThrow(`Unexpected end of stream.`);
   expect(decoder.decode(targetChunk)).toBe(`a.`);
 });
 
@@ -44,7 +44,7 @@ test(`exhausted source data: ss -> t tt`, async () => {
   await dataSource.next();
   await dataSource.next(targetChunk1);
 
-  await expect(dataSource.next(targetChunk2)).rejects.toThrow(`unexpected end of stream`);
+  await expect(dataSource.next(targetChunk2)).rejects.toThrow(`Unexpected end of stream.`);
   expect(decoder.decode(targetChunk1)).toBe(`a`);
   expect(decoder.decode(targetChunk2)).toBe(`b.`);
 });
@@ -55,7 +55,7 @@ test(`exhausted source data: s s -> ttt`, async () => {
 
   await dataSource.next();
 
-  await expect(dataSource.next(targetChunk)).rejects.toThrow(`unexpected end of stream`);
+  await expect(dataSource.next(targetChunk)).rejects.toThrow(`Unexpected end of stream.`);
   expect(decoder.decode(targetChunk)).toBe(`ab.`);
 });
 
@@ -67,7 +67,7 @@ test(`exhausted source data: s s -> t tt`, async () => {
   await dataSource.next();
   await dataSource.next(targetChunk1);
 
-  await expect(dataSource.next(targetChunk2)).rejects.toThrow(`unexpected end of stream`);
+  await expect(dataSource.next(targetChunk2)).rejects.toThrow(`Unexpected end of stream.`);
   expect(decoder.decode(targetChunk1)).toBe(`a`);
   expect(decoder.decode(targetChunk2)).toBe(`b.`);
 });

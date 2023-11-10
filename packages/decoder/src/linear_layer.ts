@@ -1,57 +1,57 @@
 interface WasmExports extends WebAssembly.Exports {
   readonly memory: WebAssembly.Memory;
 
-  init(input_vector_len: number, output_vector_len: number): number;
-  getOutputWeightMatrix(state: number): number;
-  getNormWeightVector(state: number): number;
+  init(embedding_size: number, vocab_size: number): number;
   getInputVector(state: number): number;
+  getNormWeightVector(state: number): number;
+  getOutputWeightMatrix(state: number): number;
   getOutputVector(state: number): number;
   forward(state: number): number;
 }
 
 export interface LinearLayerInit {
-  readonly inputVectorLength: number;
-  readonly outputVectorLength: number;
+  readonly embeddingSize: number;
+  readonly vocabSize: number;
 }
 
 export class LinearLayer {
   static wasmModule: WebAssembly.Module | undefined;
 
-  readonly outputWeightMatrix: Float32Array;
-  readonly normWeightVector: Float32Array;
   readonly inputVector: Float32Array;
+  readonly normWeightVector: Float32Array;
+  readonly outputWeightMatrix: Float32Array;
   readonly outputVector: Float32Array;
 
   readonly #wasmInstance: WebAssembly.Instance;
   readonly #wasmState: number;
 
-  constructor({ inputVectorLength, outputVectorLength }: LinearLayerInit) {
+  constructor({ embeddingSize, vocabSize }: LinearLayerInit) {
     const wasmInstance = new WebAssembly.Instance(LinearLayer.wasmModule!);
     const wasmExports = wasmInstance.exports as WasmExports;
-    const wasmState = wasmExports.init(inputVectorLength, outputVectorLength);
+    const wasmState = wasmExports.init(embeddingSize, vocabSize);
 
-    this.outputWeightMatrix = new Float32Array(
+    this.inputVector = new Float32Array(
       wasmExports.memory.buffer,
-      wasmExports.getOutputWeightMatrix(wasmState),
-      outputVectorLength * inputVectorLength,
+      wasmExports.getInputVector(wasmState),
+      embeddingSize,
     );
 
     this.normWeightVector = new Float32Array(
       wasmExports.memory.buffer,
       wasmExports.getNormWeightVector(wasmState),
-      inputVectorLength,
+      embeddingSize,
     );
 
-    this.inputVector = new Float32Array(
+    this.outputWeightMatrix = new Float32Array(
       wasmExports.memory.buffer,
-      wasmExports.getInputVector(wasmState),
-      inputVectorLength,
+      wasmExports.getOutputWeightMatrix(wasmState),
+      vocabSize * embeddingSize,
     );
 
     this.outputVector = new Float32Array(
       wasmExports.memory.buffer,
       wasmExports.getOutputVector(wasmState),
-      outputVectorLength,
+      vocabSize,
     );
 
     this.#wasmInstance = wasmInstance;

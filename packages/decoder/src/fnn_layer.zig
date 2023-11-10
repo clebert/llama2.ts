@@ -5,44 +5,42 @@ const rms_norm = @import("simd/rms_norm.zig");
 const swish = @import("simd/swish.zig");
 
 const State = struct {
+    input_vector: []f32,
+    norm_weight_vector: []f32,
     gate_weight_matrix: []f32,
     up_weight_matrix: []f32,
     down_weight_matrix: []f32,
-    norm_weight_vector: []f32,
-    input_vector: []f32,
     output_vector: []f32,
+
     hidden_vector_1: []f32,
     hidden_vector_2: []f32,
 };
 
-export fn init(input_vector_len: usize, hidden_vector_len: usize) ?*const State {
+export fn init(embedding_size: usize, hidden_size: usize) ?*const State {
     const allocator = std.heap.page_allocator;
     const state = allocator.create(State) catch return null;
 
     state.* = .{
-        .gate_weight_matrix = allocator.alloc(
-            f32,
-            hidden_vector_len * input_vector_len,
-        ) catch return null,
+        .input_vector = allocator.alloc(f32, embedding_size) catch return null,
+        .norm_weight_vector = allocator.alloc(f32, embedding_size) catch return null,
+        .gate_weight_matrix = allocator.alloc(f32, hidden_size * embedding_size) catch return null,
+        .up_weight_matrix = allocator.alloc(f32, hidden_size * embedding_size) catch return null,
+        .down_weight_matrix = allocator.alloc(f32, embedding_size * hidden_size) catch return null,
+        .output_vector = allocator.alloc(f32, embedding_size) catch return null,
 
-        .up_weight_matrix = allocator.alloc(
-            f32,
-            hidden_vector_len * input_vector_len,
-        ) catch return null,
-
-        .down_weight_matrix = allocator.alloc(
-            f32,
-            input_vector_len * hidden_vector_len,
-        ) catch return null,
-
-        .norm_weight_vector = allocator.alloc(f32, input_vector_len) catch return null,
-        .input_vector = allocator.alloc(f32, input_vector_len) catch return null,
-        .output_vector = allocator.alloc(f32, input_vector_len) catch return null,
-        .hidden_vector_1 = allocator.alloc(f32, hidden_vector_len) catch return null,
-        .hidden_vector_2 = allocator.alloc(f32, hidden_vector_len) catch return null,
+        .hidden_vector_1 = allocator.alloc(f32, hidden_size) catch return null,
+        .hidden_vector_2 = allocator.alloc(f32, hidden_size) catch return null,
     };
 
     return state;
+}
+
+export fn getInputVector(state: *const State) [*]f32 {
+    return state.input_vector.ptr;
+}
+
+export fn getNormWeightVector(state: *const State) [*]f32 {
+    return state.norm_weight_vector.ptr;
 }
 
 export fn getGateWeightMatrix(state: *const State) [*]f32 {
@@ -55,14 +53,6 @@ export fn getUpWeightMatrix(state: *const State) [*]f32 {
 
 export fn getDownWeightMatrix(state: *const State) [*]f32 {
     return state.down_weight_matrix.ptr;
-}
-
-export fn getNormWeightVector(state: *const State) [*]f32 {
-    return state.norm_weight_vector.ptr;
-}
-
-export fn getInputVector(state: *const State) [*]f32 {
-    return state.input_vector.ptr;
 }
 
 export fn getOutputVector(state: *const State) [*]f32 {

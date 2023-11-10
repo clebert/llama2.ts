@@ -5,18 +5,20 @@ export interface TokenizerDecodeOptions {
 }
 
 export class Tokenizer {
-  readonly unkTokenId: number;
-  readonly bosTokenId: number;
-  readonly eosTokenId: number;
+  readonly unkTokenId = 0;
+  readonly bosTokenId = 1;
+  readonly eosTokenId = 2;
 
   readonly #vocab: Vocab;
 
   constructor(vocab: Vocab) {
-    this.unkTokenId = vocab.entriesByToken.get(`<unk>`)!.tokenId;
-    this.bosTokenId = vocab.entriesByToken.get(`\n<s>\n`)!.tokenId; // TODO: use "<s>"
-    this.eosTokenId = vocab.entriesByToken.get(`\n</s>\n`)!.tokenId; // TODO: use "</s>"
-
     this.#vocab = vocab;
+
+    this.#assert(`<unk>`, this.unkTokenId);
+    this.#assert(`<s>`, this.bosTokenId);
+    this.#assert(`</s>`, this.eosTokenId);
+    this.#assert(`<0x00>`, 3);
+    this.#assert(`<0x01>`, 4);
   }
 
   encode(input: string): number[] {
@@ -26,7 +28,6 @@ export class Tokenizer {
 
     const tokenIds: number[] = [];
 
-    // TODO: use "▁"
     for (const token of [...` ${input}`]) {
       const entry = this.#vocab.entriesByToken.get(token);
 
@@ -71,11 +72,21 @@ export class Tokenizer {
 
     const { token } = this.#vocab.entriesByTokenId[tokenId]!;
 
-    return format(prevTokenId === this.bosTokenId && /^\s/.test(token) ? token.slice(1) : token);
+    return decodeHex(prevTokenId === this.bosTokenId && token[0] === ` ` ? token.slice(1) : token);
+  }
+
+  #assert(expectedToken: string, tokenId: number): void {
+    const actualToken = this.#vocab.entriesByTokenId[tokenId]?.token;
+
+    if (expectedToken !== actualToken) {
+      throw new Error(
+        `Unsupported vocab detected. Expected '${expectedToken}' at position ${tokenId} but found '${actualToken}' instead.`,
+      );
+    }
   }
 }
 
-function format(token: string): string {
+function decodeHex(token: string): string {
   const result = token.match(/^<0x([0-9A-F]+)>$/);
 
   if (!result) {

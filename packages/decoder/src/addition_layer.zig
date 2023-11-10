@@ -7,13 +7,13 @@ const State = struct {
     output_vector: []f32,
 };
 
-export fn init(input_vector_len: usize) ?*const State {
+export fn init(embedding_size: usize) ?*const State {
     const allocator = std.heap.page_allocator;
     const state = allocator.create(State) catch return null;
 
     state.* = .{
-        .input_vector = allocator.alloc(f32, input_vector_len) catch return null,
-        .output_vector = allocator.alloc(f32, input_vector_len) catch return null,
+        .input_vector = allocator.alloc(f32, embedding_size) catch return null,
+        .output_vector = allocator.alloc(f32, embedding_size) catch return null,
     };
 
     return state;

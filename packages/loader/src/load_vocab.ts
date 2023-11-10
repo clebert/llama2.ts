@@ -14,9 +14,6 @@ export interface VocabEntry {
 export async function loadVocab(dataSource: DataSource, vocabSize: number): Promise<Vocab> {
   const entriesByToken = new Map<string, VocabEntry>();
   const entriesByTokenId: VocabEntry[] = [];
-  const maxTokenLengthData = new Uint32Array(1);
-
-  await dataSource.next(maxTokenLengthData);
 
   for (let tokenId = 0; tokenId < vocabSize; tokenId += 1) {
     const scoreData = new Float32Array(1);
@@ -33,7 +30,7 @@ export async function loadVocab(dataSource: DataSource, vocabSize: number): Prom
 
     await dataSource.next(tokenData);
 
-    const token = new TextDecoder().decode(tokenData);
+    const token = new TextDecoder().decode(tokenData).replaceAll(`▁`, ` `);
     const entry: VocabEntry = { tokenId, token, score };
 
     entriesByToken.set(token, entry);

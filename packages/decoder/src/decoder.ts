@@ -4,12 +4,12 @@ import type { LinearLayer } from './linear_layer.js';
 
 import { AdditionLayer } from './addition_layer.js';
 
-export interface Config {
+export interface Hyperparams {
   readonly embeddingSize: number;
   readonly hiddenSize: number;
+  readonly keyValueSize: number;
   readonly layerCount: number;
   readonly queryHeadCount: number;
-  readonly keyValueHeadCount: number;
   readonly vocabSize: number;
   readonly maxSequenceLength: number;
   readonly sharedOutputWeight: boolean;
@@ -23,14 +23,14 @@ export interface Checkpoint {
 }
 
 export class Decoder {
-  readonly #config: Config;
+  readonly #hyperparams: Hyperparams;
   readonly #checkpoint: Checkpoint;
   readonly #additionLayer: AdditionLayer;
 
-  constructor(config: Config, checkpoint: Checkpoint) {
-    this.#config = config;
+  constructor(hyperparams: Hyperparams, checkpoint: Checkpoint) {
+    this.#hyperparams = hyperparams;
     this.#checkpoint = checkpoint;
-    this.#additionLayer = new AdditionLayer(config.embeddingSize);
+    this.#additionLayer = new AdditionLayer(hyperparams.embeddingSize);
   }
 
   decode(tokenId: number, position: number): Float32Array {
@@ -38,7 +38,7 @@ export class Decoder {
 
     hiddenVector.set(this.#checkpoint.embeddingVectors[tokenId]!);
 
-    for (let index = 0; index < this.#config.layerCount; index += 1) {
+    for (let index = 0; index < this.#hyperparams.layerCount; index += 1) {
       const attentionLayer = this.#checkpoint.attentionLayers[index]!;
 
       attentionLayer.inputVector.set(hiddenVector);

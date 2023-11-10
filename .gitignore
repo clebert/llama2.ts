@@ -3,8 +3,8 @@
 /zig-cache
 /zig-out
 /models/*
-!/models/tinystories_15m
-!/models/tinystories_260k
+!/models/tinystories_15m.bin
+!/models/tinystories_260k.bin
 /packages/*/lib
 *.tsbuildinfo
 .turbo

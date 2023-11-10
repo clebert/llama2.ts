@@ -9,13 +9,15 @@ const State = struct {
     key_value_head_count: usize,
     head_size: usize,
     head_size_sqrt: f32,
+
+    input_vector: []f32,
+    norm_weight_vector: []f32,
     query_weight_matrix: []f32,
     key_weight_matrix: []f32,
     value_weight_matrix: []f32,
     output_weight_matrix: []f32,
-    norm_weight_vector: []f32,
-    input_vector: []f32,
     output_vector: []f32,
+
     query_vector: []f32,
     key_vectors: [][]f32,
     value_vectors: [][]f32,
@@ -23,15 +25,14 @@ const State = struct {
 };
 
 export fn init(
-    input_vector_len: usize,
+    embedding_size: usize,
+    key_value_size: usize,
     query_head_count: usize,
-    key_value_head_count: usize,
     sequence_len: usize,
 ) ?*const State {
     const allocator = std.heap.page_allocator;
+    const head_size = embedding_size / query_head_count;
     const state = allocator.create(State) catch return null;
-    const head_size = input_vector_len / query_head_count;
-    const key_value_size = key_value_head_count * head_size;
     const key_vectors = allocator.alloc([]f32, sequence_len) catch return null;
     const value_vectors = allocator.alloc([]f32, sequence_len) catch return null;
 
@@ -45,40 +46,50 @@ export fn init(
 
     state.* = .{
         .query_head_count = query_head_count,
-        .key_value_head_count = key_value_head_count,
+        .key_value_head_count = key_value_size / head_size,
         .head_size = head_size,
         .head_size_sqrt = std.math.sqrt(@as(f32, @floatFromInt(head_size))),
 
+        .input_vector = allocator.alloc(f32, embedding_size) catch return null,
+        .norm_weight_vector = allocator.alloc(f32, embedding_size) catch return null,
+
         .query_weight_matrix = allocator.alloc(
             f32,
-            input_vector_len * input_vector_len,
+            embedding_size * embedding_size,
         ) catch return null,
 
         .key_weight_matrix = allocator.alloc(
             f32,
-            key_value_size * input_vector_len,
+            key_value_size * embedding_size,
         ) catch return null,
 
         .value_weight_matrix = allocator.alloc(
             f32,
-            key_value_size * input_vector_len,
+            key_value_size * embedding_size,
         ) catch return null,
 
         .output_weight_matrix = allocator.alloc(
             f32,
-            input_vector_len * input_vector_len,
+            embedding_size * embedding_size,
         ) catch return null,
 
-        .norm_weight_vector = allocator.alloc(f32, input_vector_len) catch return null,
-        .input_vector = allocator.alloc(f32, input_vector_len) catch return null,
-        .output_vector = allocator.alloc(f32, input_vector_len) catch return null,
-        .query_vector = allocator.alloc(f32, input_vector_len) catch return null,
+        .output_vector = allocator.alloc(f32, embedding_size) catch return null,
+
+        .query_vector = allocator.alloc(f32, embedding_size) catch return null,
         .key_vectors = key_vectors,
         .value_vectors = value_vectors,
         .scores = allocator.alloc(f32, sequence_len) catch return null,
     };
 
     return state;
+}
+
+export fn getInputVector(state: *const State) [*]f32 {
+    return state.input_vector.ptr;
+}
+
+export fn getNormWeightVector(state: *const State) [*]f32 {
+    return state.norm_weight_vector.ptr;
 }
 
 export fn getQueryWeightMatrix(state: *const State) [*]f32 {
@@ -95,14 +106,6 @@ export fn getValueWeightMatrix(state: *const State) [*]f32 {
 
 export fn getOutputWeightMatrix(state: *const State) [*]f32 {
     return state.output_weight_matrix.ptr;
-}
-
-export fn getNormWeightVector(state: *const State) [*]f32 {
-    return state.norm_weight_vector.ptr;
-}
-
-export fn getInputVector(state: *const State) [*]f32 {
-    return state.input_vector.ptr;
 }
 
 export fn getOutputVector(state: *const State) [*]f32 {

@@ -65,7 +65,7 @@ export async function* createDataSource(
 
   while (true) {
     if (targetChunk || (yield)) {
-      throw new Error(`unexpected end of stream`);
+      throw new Error(`Unexpected end of stream.`);
     }
   }
 }

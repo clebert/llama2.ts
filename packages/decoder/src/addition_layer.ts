@@ -1,7 +1,7 @@
 interface WasmExports extends WebAssembly.Exports {
   readonly memory: WebAssembly.Memory;
 
-  init(input_vector_len: number): number;
+  init(embedding_size: number): number;
   getInputVector(state: number): number;
   getOutputVector(state: number): number;
   forward(state: number): void;
@@ -16,21 +16,21 @@ export class AdditionLayer {
   readonly #wasmInstance: WebAssembly.Instance;
   readonly #wasmState: number;
 
-  constructor(inputVectorLength: number) {
+  constructor(embeddingSize: number) {
     const wasmInstance = new WebAssembly.Instance(AdditionLayer.wasmModule!);
     const wasmExports = wasmInstance.exports as WasmExports;
-    const wasmState = wasmExports.init(inputVectorLength);
+    const wasmState = wasmExports.init(embeddingSize);
 
     this.inputVector = new Float32Array(
       wasmExports.memory.buffer,
       wasmExports.getInputVector(wasmState),
-      inputVectorLength,
+      embeddingSize,
     );
 
     this.outputVector = new Float32Array(
       wasmExports.memory.buffer,
       wasmExports.getOutputVector(wasmState),
-      inputVectorLength,
+      embeddingSize,
     );
 
     this.#wasmInstance = wasmInstance;

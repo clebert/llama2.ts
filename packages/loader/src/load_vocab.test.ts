@@ -1,15 +1,18 @@
 import { createDataSource } from './create_data_source.js';
+import { loadHyperparams } from './load_hyperparams.js';
 import { loadVocab } from './load_vocab.js';
 import { expect, test } from '@jest/globals';
 import { open } from 'node:fs/promises';
 
 test(`tinystories 15m vocab`, async () => {
-  const file = await open(`models/tinystories_15m/tokenizer.bin`);
+  const file = await open(`models/tinystories_15m.bin`);
   const dataSource = createDataSource(file.readableWebStream() as ReadableStream<ArrayBuffer>);
 
   await dataSource.next();
 
-  const vocab = await loadVocab(dataSource, 32000);
+  const hyperparams = await loadHyperparams(dataSource);
+
+  const vocab = await loadVocab(dataSource, hyperparams.vocabSize);
 
   await dataSource.next(); // close stream
 
@@ -25,4 +28,9 @@ test(`tinystories 15m vocab`, async () => {
 
   expect(utf8Entry).toStrictEqual({ score: -31150, token: `株`, tokenId: 31409 });
   expect(vocab.entriesByToken.get(utf8Entry!.token)).toBe(utf8Entry);
+
+  const spaceEntry = vocab.entriesByTokenId[2913]!;
+
+  expect(spaceEntry).toStrictEqual({ score: -2654, token: ` space`, tokenId: 2913 });
+  expect(vocab.entriesByToken.get(spaceEntry!.token)).toBe(spaceEntry);
 });
