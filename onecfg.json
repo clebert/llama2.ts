@@ -88,6 +88,12 @@
             { "path": "packages/tokenizer" }
           ]
         }
+      },
+      {
+        "value": {
+          "include": ["**/*.js"]
+        },
+        "array_merge": "replace"
       }
     ],
     "tsconfig.base.json": [

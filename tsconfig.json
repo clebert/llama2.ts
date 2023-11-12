@@ -12,7 +12,7 @@
     "./tsconfig.base.json"
   ],
   "include": [
-    "**/*"
+    "**/*.js"
   ],
   "references": [
     {

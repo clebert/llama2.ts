@@ -17,9 +17,9 @@
     "preformat:check": "turbo format:check",
     "format:check": "prettier --check .",
     "lint": "eslint .",
+    "start": "node packages/node/lib/main.js",
     "pretest": "turbo test",
-    "test": "NODE_OPTIONS=--experimental-vm-modules jest --silent",
-    "start": "node packages/node/lib/main.js"
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest --silent"
   },
   "devDependencies": {
     "@jest/globals": "^29.7.0",
