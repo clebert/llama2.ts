@@ -8,10 +8,10 @@ import { stdout } from 'node:process';
 
 await loadWasmModules();
 
-// const modelPath = `models/tinystories_110m.bin`;
-// const modelPath = `models/tinystories_42m.bin`;
-const modelPath = `models/tinystories_15m.bin`;
-// const modelPath = `models/tinystories_260k.bin`;
+// const modelPath = `../../models/tinystories_110m.bin`;
+// const modelPath = `../../models/tinystories_42m.bin`;
+const modelPath = `../../models/tinystories_15m.bin`;
+// const modelPath = `../../models/tinystories_260k.bin`;
 
 const file = await open(modelPath);
 

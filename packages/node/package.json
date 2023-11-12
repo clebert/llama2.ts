@@ -1,6 +1,10 @@
 {
+  "name": "@llama2/node",
   "private": true,
   "type": "module",
+  "scripts": {
+    "start:node": "node lib/main.js"
+  },
   "dependencies": {
     "@llama2/decoder": "*",
     "@llama2/loader": "*",

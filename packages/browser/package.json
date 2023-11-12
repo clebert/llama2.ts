@@ -1,0 +1,21 @@
+{
+  "name": "@llama2/browser",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build.js",
+    "build:watch": "node build.js --watch",
+    "start:browser": "aws-simple start"
+  },
+  "dependencies": {
+    "@llama2/decoder": "*",
+    "@llama2/loader": "*",
+    "@llama2/tokenizer": "*"
+  },
+  "devDependencies": {
+    "@webgpu/types": "^0.1.38",
+    "aws-simple": "^18.2.0",
+    "esbuild": "^0.19.5",
+    "esbuild-html-plugin": "^1.0.1"
+  }
+}

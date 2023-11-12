@@ -11,4 +11,5 @@
 /tsconfig.eslint.json
 /.vscode/extensions.json
 /.vscode/settings.json
+/packages/*/dist
 /packages/*/lib

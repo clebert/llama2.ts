@@ -2,12 +2,15 @@
   "private": true,
   "type": "module",
   "workspaces": [
+    "packages/browser",
     "packages/decoder",
     "packages/loader",
     "packages/node",
     "packages/tokenizer"
   ],
   "scripts": {
+    "build": "turbo build",
+    "build:watch": "turbo build:watch",
     "precompile": "turbo compile",
     "compile": "tsc --build",
     "compile:clean": "tsc --build --clean",
@@ -17,7 +20,8 @@
     "preformat:check": "turbo format:check",
     "format:check": "prettier --check .",
     "lint": "eslint .",
-    "start": "node packages/node/lib/main.js",
+    "start:browser": "turbo --log-prefix=none start:browser",
+    "start:node": "turbo --log-prefix=none start:node",
     "pretest": "turbo test",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --silent"
   },

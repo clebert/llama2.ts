@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "incremental": true,
+    "inlineSources": true,
+    "outDir": "lib",
+    "rootDir": "src",
+    "sourceMap": true,
+    "types": ["@webgpu/types"]
+  },
+  "extends": "../../tsconfig.base.json",
+  "include": ["src/**/*"],
+  "references": [{ "path": "../decoder" }, { "path": "../loader" }, { "path": "../tokenizer" }]
+}

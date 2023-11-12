@@ -1,6 +1,12 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "pipeline": {
+    "build": {
+      "cache": false
+    },
+    "build:watch": {
+      "cache": false
+    },
     "compile": {
       "cache": false
     },
@@ -8,6 +14,12 @@
       "cache": false
     },
     "format:check": {
+      "cache": false
+    },
+    "start:browser": {
+      "cache": false
+    },
+    "start:node": {
       "cache": false
     },
     "test": {

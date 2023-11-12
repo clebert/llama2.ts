@@ -18,7 +18,7 @@
   "patches": {
     ".eslintignore": [
       {
-        "value": ["/packages/*/lib"]
+        "value": ["/packages/*/dist", "/packages/*/lib"]
       }
     ],
     ".eslintrc.json": [
@@ -47,6 +47,7 @@
           "/models/*",
           "!/models/tinystories_15m.bin",
           "!/models/tinystories_260k.bin",
+          "/packages/*/dist",
           "/packages/*/lib",
           "*.tsbuildinfo",
           ".turbo",
@@ -57,7 +58,7 @@
     ],
     ".prettierignore": [
       {
-        "value": ["/packages/*/lib"]
+        "value": ["/packages/*/dist", "/packages/*/lib"]
       }
     ],
     "ci.sh": [
@@ -80,8 +81,9 @@
     "tsconfig.json": [
       {
         "value": {
-          "exclude": ["packages/*/lib"],
+          "exclude": ["packages/*/dist", "packages/*/lib"],
           "references": [
+            { "path": "packages/browser" },
             { "path": "packages/decoder" },
             { "path": "packages/loader" },
             { "path": "packages/node" },

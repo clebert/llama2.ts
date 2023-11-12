@@ -6,6 +6,7 @@
   },
   "exclude": [
     "coverage",
+    "packages/*/dist",
     "packages/*/lib"
   ],
   "extends": [
@@ -15,6 +16,9 @@
     "**/*.js"
   ],
   "references": [
+    {
+      "path": "packages/browser"
+    },
     {
       "path": "packages/decoder"
     },
