@@ -6,7 +6,10 @@ import { open } from 'node:fs/promises';
 
 test(`tinystories 15m vocab`, async () => {
   const file = await open(`models/tinystories_15m.bin`);
-  const dataSource = createDataSource(file.readableWebStream() as ReadableStream<ArrayBuffer>);
+
+  const dataSource = createDataSource(
+    file.readableWebStream().getReader() as ReadableStreamDefaultReader,
+  );
 
   await dataSource.next();
 

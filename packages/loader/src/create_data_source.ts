@@ -1,10 +1,8 @@
 export type DataSource = AsyncGenerator<undefined, never, ArrayBufferView>;
 
 export async function* createDataSource(
-  stream: ReadableStream<ArrayBuffer | Uint8Array>,
+  reader: ReadableStreamDefaultReader<ArrayBuffer | Uint8Array>,
 ): DataSource {
-  const reader = stream.getReader();
-
   let targetChunk: Uint8Array | undefined;
 
   while (true) {

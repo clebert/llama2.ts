@@ -14,7 +14,10 @@ const modelPath = `models/tinystories_15m.bin`;
 // const modelPath = `models/tinystories_260k.bin`;
 
 const file = await open(modelPath);
-const dataSource = createDataSource(file.readableWebStream() as ReadableStream<ArrayBuffer>);
+
+const dataSource = createDataSource(
+  file.readableWebStream().getReader() as ReadableStreamDefaultReader,
+);
 
 await dataSource.next();
 

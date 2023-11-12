@@ -12,7 +12,7 @@ beforeAll(async () => {
   const file15m = await open(`models/tinystories_15m.bin`);
 
   const dataSource15m = createDataSource(
-    file15m.readableWebStream() as ReadableStream<ArrayBuffer>,
+    file15m.readableWebStream().getReader() as ReadableStreamDefaultReader,
   );
 
   await dataSource15m.next();
@@ -26,7 +26,7 @@ beforeAll(async () => {
   const file260k = await open(`models/tinystories_260k.bin`);
 
   const dataSource260k = createDataSource(
-    file260k.readableWebStream() as ReadableStream<ArrayBuffer>,
+    file260k.readableWebStream().getReader() as ReadableStreamDefaultReader,
   );
 
   await dataSource260k.next();

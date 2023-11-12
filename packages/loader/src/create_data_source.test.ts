@@ -4,7 +4,7 @@ import { expect, test } from '@jest/globals';
 const decoder = new TextDecoder();
 const encoder = new TextEncoder();
 
-function createTextStream(...chunks: readonly string[]): ReadableStream<Uint8Array> {
+function createTextReader(...chunks: readonly string[]): ReadableStreamDefaultReader<Uint8Array> {
   return new ReadableStream({
     start(controller): void {
       for (const chunk of chunks) {
@@ -13,11 +13,11 @@ function createTextStream(...chunks: readonly string[]): ReadableStream<Uint8Arr
 
       controller.close();
     },
-  });
+  }).getReader();
 }
 
 test(`empty source data`, async () => {
-  const dataSource = createDataSource(createTextStream());
+  const dataSource = createDataSource(createTextReader());
   const targetChunk = encoder.encode(`.`);
 
   await dataSource.next();
@@ -27,7 +27,7 @@ test(`empty source data`, async () => {
 });
 
 test(`exhausted source data: s -> tt`, async () => {
-  const dataSource = createDataSource(createTextStream(`a`));
+  const dataSource = createDataSource(createTextReader(`a`));
   const targetChunk = encoder.encode(`..`);
 
   await dataSource.next();
@@ -37,7 +37,7 @@ test(`exhausted source data: s -> tt`, async () => {
 });
 
 test(`exhausted source data: ss -> t tt`, async () => {
-  const dataSource = createDataSource(createTextStream(`ab`));
+  const dataSource = createDataSource(createTextReader(`ab`));
   const targetChunk1 = encoder.encode(`.`);
   const targetChunk2 = encoder.encode(`..`);
 
@@ -50,7 +50,7 @@ test(`exhausted source data: ss -> t tt`, async () => {
 });
 
 test(`exhausted source data: s s -> ttt`, async () => {
-  const dataSource = createDataSource(createTextStream(`a`, `b`));
+  const dataSource = createDataSource(createTextReader(`a`, `b`));
   const targetChunk = encoder.encode(`...`);
 
   await dataSource.next();
@@ -60,7 +60,7 @@ test(`exhausted source data: s s -> ttt`, async () => {
 });
 
 test(`exhausted source data: s s -> t tt`, async () => {
-  const dataSource = createDataSource(createTextStream(`a`, `b`));
+  const dataSource = createDataSource(createTextReader(`a`, `b`));
   const targetChunk1 = encoder.encode(`.`);
   const targetChunk2 = encoder.encode(`..`);
 
@@ -73,7 +73,7 @@ test(`exhausted source data: s s -> t tt`, async () => {
 });
 
 test(`fully consumed source data: s -> t`, async () => {
-  const dataSource = createDataSource(createTextStream(`a`));
+  const dataSource = createDataSource(createTextReader(`a`));
   const targetChunk = encoder.encode(`.`);
 
   await dataSource.next();
@@ -83,7 +83,7 @@ test(`fully consumed source data: s -> t`, async () => {
 });
 
 test(`fully consumed source data: ss -> t t`, async () => {
-  const dataSource = createDataSource(createTextStream(`ab`));
+  const dataSource = createDataSource(createTextReader(`ab`));
   const targetChunk1 = encoder.encode(`.`);
   const targetChunk2 = encoder.encode(`.`);
 
@@ -96,7 +96,7 @@ test(`fully consumed source data: ss -> t t`, async () => {
 });
 
 test(`fully consumed source data: sss -> t t t`, async () => {
-  const dataSource = createDataSource(createTextStream(`abc`));
+  const dataSource = createDataSource(createTextReader(`abc`));
   const targetChunk1 = encoder.encode(`.`);
   const targetChunk2 = encoder.encode(`.`);
   const targetChunk3 = encoder.encode(`.`);
@@ -112,7 +112,7 @@ test(`fully consumed source data: sss -> t t t`, async () => {
 });
 
 test(`fully consumed source data: s s -> tt`, async () => {
-  const dataSource = createDataSource(createTextStream(`a`, `b`));
+  const dataSource = createDataSource(createTextReader(`a`, `b`));
   const targetChunk = encoder.encode(`..`);
 
   await dataSource.next();
@@ -122,7 +122,7 @@ test(`fully consumed source data: s s -> tt`, async () => {
 });
 
 test(`fully consumed source data: s s -> t t`, async () => {
-  const dataSource = createDataSource(createTextStream(`a`, `b`));
+  const dataSource = createDataSource(createTextReader(`a`, `b`));
   const targetChunk1 = encoder.encode(`.`);
   const targetChunk2 = encoder.encode(`.`);
 
@@ -135,7 +135,7 @@ test(`fully consumed source data: s s -> t t`, async () => {
 });
 
 test(`fully consumed source data: s ss -> tt t`, async () => {
-  const dataSource = createDataSource(createTextStream(`a`, `bc`));
+  const dataSource = createDataSource(createTextReader(`a`, `bc`));
   const targetChunk1 = encoder.encode(`..`);
   const targetChunk2 = encoder.encode(`.`);
 
@@ -148,7 +148,7 @@ test(`fully consumed source data: s ss -> tt t`, async () => {
 });
 
 test(`fully consumed source data: s ss -> t t t`, async () => {
-  const dataSource = createDataSource(createTextStream(`a`, `bc`));
+  const dataSource = createDataSource(createTextReader(`a`, `bc`));
   const targetChunk1 = encoder.encode(`.`);
   const targetChunk2 = encoder.encode(`.`);
   const targetChunk3 = encoder.encode(`.`);
@@ -164,7 +164,7 @@ test(`fully consumed source data: s ss -> t t t`, async () => {
 });
 
 test(`fully consumed source data: ss s -> t tt`, async () => {
-  const dataSource = createDataSource(createTextStream(`ab`, `c`));
+  const dataSource = createDataSource(createTextReader(`ab`, `c`));
   const targetChunk1 = encoder.encode(`.`);
   const targetChunk2 = encoder.encode(`..`);
 
@@ -177,7 +177,7 @@ test(`fully consumed source data: ss s -> t tt`, async () => {
 });
 
 test(`fully consumed source data: ss s -> t t t`, async () => {
-  const dataSource = createDataSource(createTextStream(`ab`, `c`));
+  const dataSource = createDataSource(createTextReader(`ab`, `c`));
   const targetChunk1 = encoder.encode(`.`);
   const targetChunk2 = encoder.encode(`.`);
   const targetChunk3 = encoder.encode(`.`);
@@ -193,7 +193,7 @@ test(`fully consumed source data: ss s -> t t t`, async () => {
 });
 
 test(`fully consumed source data: s s s -> ttt`, async () => {
-  const dataSource = createDataSource(createTextStream(`a`, `b`, `c`));
+  const dataSource = createDataSource(createTextReader(`a`, `b`, `c`));
   const targetChunk = encoder.encode(`...`);
 
   await dataSource.next();
@@ -203,7 +203,7 @@ test(`fully consumed source data: s s s -> ttt`, async () => {
 });
 
 test(`fully consumed source data: s s s -> t tt`, async () => {
-  const dataSource = createDataSource(createTextStream(`a`, `b`, `c`));
+  const dataSource = createDataSource(createTextReader(`a`, `b`, `c`));
   const targetChunk1 = encoder.encode(`.`);
   const targetChunk2 = encoder.encode(`..`);
 
@@ -216,7 +216,7 @@ test(`fully consumed source data: s s s -> t tt`, async () => {
 });
 
 test(`fully consumed source data: s s s -> tt t`, async () => {
-  const dataSource = createDataSource(createTextStream(`a`, `b`, `c`));
+  const dataSource = createDataSource(createTextReader(`a`, `b`, `c`));
   const targetChunk1 = encoder.encode(`..`);
   const targetChunk2 = encoder.encode(`.`);
 
@@ -229,7 +229,7 @@ test(`fully consumed source data: s s s -> tt t`, async () => {
 });
 
 test(`fully consumed source data: s s s -> t t t`, async () => {
-  const dataSource = createDataSource(createTextStream(`a`, `b`, `c`));
+  const dataSource = createDataSource(createTextReader(`a`, `b`, `c`));
   const targetChunk1 = encoder.encode(`.`);
   const targetChunk2 = encoder.encode(`.`);
   const targetChunk3 = encoder.encode(`.`);
@@ -252,7 +252,7 @@ test(`hidden source data`, async () => {
         controller.enqueue(encoder.encode(`jkl`));
         controller.close();
       },
-    }),
+    }).getReader(),
   );
 
   const targetChunk1 = encoder.encode(`......`);
@@ -267,7 +267,7 @@ test(`hidden source data`, async () => {
 });
 
 test(`hidden target data`, async () => {
-  const dataSource = createDataSource(createTextStream(`abc`, `def`));
+  const dataSource = createDataSource(createTextReader(`abc`, `def`));
   const hiddenTargetChunk = encoder.encode(`123......456`);
   const targetChunk = new Uint8Array(hiddenTargetChunk.buffer, 3, 6);
 

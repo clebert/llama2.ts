@@ -11,7 +11,10 @@ const fakeCheckpointPath = join(tmpdir(), `fake.bin`);
 
 test(`tinystories 15m hyperparams`, async () => {
   const file = await open(`models/tinystories_15m.bin`);
-  const dataSource = createDataSource(file.readableWebStream() as ReadableStream<ArrayBuffer>);
+
+  const dataSource = createDataSource(
+    file.readableWebStream().getReader() as ReadableStreamDefaultReader,
+  );
 
   await dataSource.next();
 
@@ -33,7 +36,10 @@ test(`tinystories 15m hyperparams`, async () => {
 
 test(`tinystories 260k hyperparams`, async () => {
   const file = await open(`models/tinystories_260k.bin`);
-  const dataSource = createDataSource(file.readableWebStream() as ReadableStream<ArrayBuffer>);
+
+  const dataSource = createDataSource(
+    file.readableWebStream().getReader() as ReadableStreamDefaultReader,
+  );
 
   await dataSource.next();
 
@@ -59,7 +65,10 @@ test(`unknown data format`, async () => {
   await writeFile(fakeCheckpointPath, buffer);
 
   const file = await open(fakeCheckpointPath);
-  const dataSource = createDataSource(file.readableWebStream() as ReadableStream<ArrayBuffer>);
+
+  const dataSource = createDataSource(
+    file.readableWebStream().getReader() as ReadableStreamDefaultReader,
+  );
 
   await dataSource.next();
 
@@ -76,7 +85,10 @@ test(`unsupported data format version`, async () => {
   await writeFile(fakeCheckpointPath, buffer);
 
   const file = await open(fakeCheckpointPath);
-  const dataSource = createDataSource(file.readableWebStream() as ReadableStream<ArrayBuffer>);
+
+  const dataSource = createDataSource(
+    file.readableWebStream().getReader() as ReadableStreamDefaultReader,
+  );
 
   await dataSource.next();
 
