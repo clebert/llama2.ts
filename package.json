@@ -21,7 +21,7 @@
     "format:check": "prettier --check .",
     "lint": "eslint .",
     "start:browser": "turbo --log-prefix=none start:browser",
-    "start:node": "turbo --log-prefix=none start:node",
+    "start:node": "node packages/node/lib/main.js",
     "pretest": "turbo test",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --silent"
   },

@@ -2,12 +2,10 @@
   "name": "@llama2/node",
   "private": true,
   "type": "module",
-  "scripts": {
-    "start:node": "node lib/main.js"
-  },
   "dependencies": {
     "@llama2/decoder": "*",
     "@llama2/loader": "*",
-    "@llama2/tokenizer": "*"
+    "@llama2/tokenizer": "*",
+    "yargs": "^17.7.2"
   }
 }

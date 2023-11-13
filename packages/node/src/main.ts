@@ -5,15 +5,20 @@ import { createDataSource, loadCheckpoint, loadHyperparams, loadVocab } from '@l
 import { Tokenizer } from '@llama2/tokenizer';
 import { open } from 'node:fs/promises';
 import { stdout } from 'node:process';
+import yargs from 'yargs';
 
 await loadWasmModules();
 
-// const modelPath = `../../models/tinystories_110m.bin`;
-// const modelPath = `../../models/tinystories_42m.bin`;
-const modelPath = `../../models/tinystories_15m.bin`;
-// const modelPath = `../../models/tinystories_260k.bin`;
+var argv = yargs(process.argv.slice(2))
+  .options({
+    modelPath: { type: `string`, demandOption: true },
+    prompt: { type: `string`, default: `` },
+    sequenceLength: { type: `number` },
+  })
+  .strict()
+  .parseSync();
 
-const file = await open(modelPath);
+const file = await open(argv.modelPath);
 
 const dataSource = createDataSource(
   file.readableWebStream().getReader() as ReadableStreamDefaultReader,
@@ -22,39 +27,30 @@ const dataSource = createDataSource(
 await dataSource.next();
 
 const hyperparams = await loadHyperparams(dataSource);
-
-console.log({ hyperparams });
-
 const vocab = await loadVocab(dataSource, hyperparams.vocabSize);
-const sequenceLength = hyperparams.maxSequenceLength;
+const sequenceLength = argv.sequenceLength || hyperparams.maxSequenceLength;
 const checkpoint = await loadCheckpoint(dataSource, hyperparams, { sequenceLength });
 
 await file.close();
 
 const tokenizer = new Tokenizer(vocab);
 const decoder = await Decoder.instantiate(hyperparams, checkpoint);
+const promptTokenIds = tokenizer.encode(argv.prompt);
 
-const tokenIds = [tokenizer.bosTokenId];
+let nextTokenId = promptTokenIds.shift() ?? tokenizer.bosTokenId;
 
-let totalTime = 0;
+const firstToken = tokenizer.decode(nextTokenId, tokenizer.bosTokenId);
 
-while (tokenIds.length <= sequenceLength) {
-  const position = tokenIds.length - 1;
-  const tokenId = tokenIds[position]!;
+if (firstToken) {
+  stdout.write(firstToken);
+}
 
-  let startTime = 0;
-
-  if (position > 0) {
-    startTime = performance.now();
-  }
-
+for (let position = 0; position < sequenceLength; position += 1) {
+  const tokenId = nextTokenId;
   const logits = decoder.decode(tokenId, position);
 
-  if (startTime > 0) {
-    totalTime += performance.now() - startTime;
-  }
+  nextTokenId = promptTokenIds.shift() ?? computeArgmax(logits);
 
-  const nextTokenId = computeArgmax(logits);
   const nextToken = tokenizer.decode(nextTokenId, tokenId);
 
   if (nextToken === undefined) {
@@ -62,11 +58,6 @@ while (tokenIds.length <= sequenceLength) {
   }
 
   stdout.write(nextToken);
-  tokenIds.push(nextTokenId);
 }
 
-if (tokenIds.length > 1) {
-  const averageTime = totalTime / (tokenIds.length - 1);
-
-  console.log(`\n\nachieved: ${(1000 / averageTime).toFixed(3)} tok/s`);
-}
+stdout.write(`\n`);

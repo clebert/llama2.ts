@@ -8,7 +8,7 @@ more updates as the project progresses.
 
 ## Getting Started
 
-**Install dependencies:**
+Install dependencies:
 
 ```sh
 npm i
@@ -16,46 +16,87 @@ npm i
 
 ### Node.js
 
-**Compile sources:**
+Compile and run the program:
 
 ```
 npm run compile
 ```
 
-**Start inference:**
+```
+npm run start:node -- --modelPath models/tinystories_15m.bin
+```
 
-```
-npm run start:node
-```
+Output:
 
 ```
 Once upon a time, there was a little girl named Lily. She loved to play outside in the sunshine. One day, she saw a big, red ball in the sky. It was the sun! She thought it was so pretty.
 Lily wanted to play with the ball, but it was too high up in the sky. She tried to jump and reach it, but she couldn't. Then, she had an idea. She would use a stick to knock the ball down.
 Lily found a stick and tried to hit the ball. But the stick was too short. She tried again and again, but she couldn't reach it. She felt sad.
 Suddenly, a kind man came by and saw Lily. He asked her what was wrong. Lily told him about the ball. The man smiled and said, "I have a useful idea!" He took out a long stick and used it to knock the ball down. Lily was so happy! She thanked the man and they played together in the sunshine.
-
-achieved: 556.172 tok/s
 ```
 
 ### Browser
 
 **NOTE:** I have only been able to run it successfully in Chrome so far. Safari crashes.
 
-**Build bundles:**
+Build the website and start the server:
 
 ```
 npm run build
 ```
 
-**Start server:**
-
 ```
 npm run start:browser
 ```
 
-**Open:** http://localhost:3000
+Open: http://localhost:3000
 
-## Model Files
+## Using Llama 2 Models from Hugging Face
+
+Install `git-lfs` and clone the
+[TinyLlama-1.1B](https://huggingface.co/PY007/TinyLlama-1.1B-intermediate-step-715k-1.5T) model from
+Hugging Face:
+
+```sh
+# Make sure you have git-lfs installed (https://git-lfs.com)
+git lfs install
+```
+
+```sh
+git clone https://huggingface.co/PY007/TinyLlama-1.1B-intermediate-step-715k-1.5T
+```
+
+Install the necessary Python packages and convert the Hugging Face model:
+
+```sh
+pip3 install -r requirements.txt
+```
+
+```sh
+python3 convert_hf_model.py /path/to/TinyLlama-1.1B models/tiny_llama.bin
+```
+
+Compile and run the program:
+
+```sh
+npm run compile
+```
+
+```sh
+npm run start:node -- \
+  --modelPath "models/tiny_llama.bin" \
+  --prompt "This is an example" \
+  --sequenceLength 40
+```
+
+Output:
+
+```
+This is an example of a "fake" 19th century letter.
+The letter is dated 1840 and is signed by the author, "J. B. C."
+```
+
+## Example Model Files
 
 The transformer model files located in the `models` directory were
 [trained](https://github.com/karpathy/llama2.c#models) on the TinyStories dataset by Andrej Karpathy

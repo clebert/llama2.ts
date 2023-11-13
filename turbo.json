@@ -19,9 +19,6 @@
     "start:browser": {
       "cache": false
     },
-    "start:node": {
-      "cache": false
-    },
     "test": {
       "cache": false
     }
