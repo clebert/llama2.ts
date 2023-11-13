@@ -23,14 +23,22 @@ export interface Checkpoint {
 }
 
 export class Decoder {
+  static async instantiate(hyperparams: Hyperparams, checkpoint: Checkpoint): Promise<Decoder> {
+    return new Decoder(hyperparams, checkpoint, await AdditionLayer.instantiate(hyperparams));
+  }
+
   readonly #hyperparams: Hyperparams;
   readonly #checkpoint: Checkpoint;
   readonly #additionLayer: AdditionLayer;
 
-  constructor(hyperparams: Hyperparams, checkpoint: Checkpoint) {
+  private constructor(
+    hyperparams: Hyperparams,
+    checkpoint: Checkpoint,
+    additionLayer: AdditionLayer,
+  ) {
     this.#hyperparams = hyperparams;
     this.#checkpoint = checkpoint;
-    this.#additionLayer = new AdditionLayer(hyperparams.embeddingSize);
+    this.#additionLayer = additionLayer;
   }
 
   decode(tokenId: number, position: number): Float32Array {

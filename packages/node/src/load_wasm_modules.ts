@@ -4,15 +4,16 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const moduleUrl = import.meta.resolve(`@llama2/decoder`);
-const libPath = join(fileURLToPath(moduleUrl), `../../zig-out/lib`);
 
 export async function loadWasmModules(): Promise<void> {
-  AdditionLayer.wasmModule = await loadWasmModule(join(libPath, `addition_layer.wasm`));
-  AttentionLayer.wasmModule = await loadWasmModule(join(libPath, `attention_layer.wasm`));
-  FnnLayer.wasmModule = await loadWasmModule(join(libPath, `fnn_layer.wasm`));
-  LinearLayer.wasmModule = await loadWasmModule(join(libPath, `linear_layer.wasm`));
+  AdditionLayer.wasmModule = await loadWasmModule(`addition_layer`);
+  AttentionLayer.wasmModule = await loadWasmModule(`attention_layer`);
+  FnnLayer.wasmModule = await loadWasmModule(`fnn_layer`);
+  LinearLayer.wasmModule = await loadWasmModule(`linear_layer`);
 }
 
-async function loadWasmModule(path: string): Promise<WebAssembly.Module> {
-  return new WebAssembly.Module(await readFile(path));
+async function loadWasmModule(moduleName: string): Promise<WebAssembly.Module> {
+  return WebAssembly.compile(
+    await readFile(join(fileURLToPath(moduleUrl), `../../zig-out/lib/${moduleName}.wasm`)),
+  );
 }

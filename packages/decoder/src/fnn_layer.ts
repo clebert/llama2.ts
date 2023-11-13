@@ -19,6 +19,10 @@ export interface FnnLayerInit {
 export class FnnLayer {
   static wasmModule: WebAssembly.Module | undefined;
 
+  static async instantiate(init: FnnLayerInit): Promise<FnnLayer> {
+    return new FnnLayer(init, await WebAssembly.instantiate(FnnLayer.wasmModule!));
+  }
+
   readonly inputVector: Float32Array;
   readonly normWeightVector: Float32Array;
   readonly gateWeightMatrix: Float32Array;
@@ -29,8 +33,10 @@ export class FnnLayer {
   readonly #wasmInstance: WebAssembly.Instance;
   readonly #wasmState: number;
 
-  constructor({ embeddingSize, hiddenSize }: FnnLayerInit) {
-    const wasmInstance = new WebAssembly.Instance(FnnLayer.wasmModule!);
+  private constructor(
+    { embeddingSize, hiddenSize }: FnnLayerInit,
+    wasmInstance: WebAssembly.Instance,
+  ) {
     const wasmExports = wasmInstance.exports as WasmExports;
     const wasmState = wasmExports.init(embeddingSize, hiddenSize);
 

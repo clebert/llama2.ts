@@ -17,6 +17,10 @@ export interface LinearLayerInit {
 export class LinearLayer {
   static wasmModule: WebAssembly.Module | undefined;
 
+  static async instantiate(init: LinearLayerInit): Promise<LinearLayer> {
+    return new LinearLayer(init, await WebAssembly.instantiate(LinearLayer.wasmModule!));
+  }
+
   readonly inputVector: Float32Array;
   readonly normWeightVector: Float32Array;
   readonly outputWeightMatrix: Float32Array;
@@ -25,8 +29,10 @@ export class LinearLayer {
   readonly #wasmInstance: WebAssembly.Instance;
   readonly #wasmState: number;
 
-  constructor({ embeddingSize, vocabSize }: LinearLayerInit) {
-    const wasmInstance = new WebAssembly.Instance(LinearLayer.wasmModule!);
+  private constructor(
+    { embeddingSize, vocabSize }: LinearLayerInit,
+    wasmInstance: WebAssembly.Instance,
+  ) {
     const wasmExports = wasmInstance.exports as WasmExports;
     const wasmState = wasmExports.init(embeddingSize, vocabSize);
 

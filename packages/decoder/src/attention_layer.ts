@@ -28,6 +28,10 @@ export interface AttentionLayerInit {
 export class AttentionLayer {
   static wasmModule: WebAssembly.Module | undefined;
 
+  static async instantiate(init: AttentionLayerInit): Promise<AttentionLayer> {
+    return new AttentionLayer(init, await WebAssembly.instantiate(AttentionLayer.wasmModule!));
+  }
+
   readonly inputVector: Float32Array;
   readonly normWeightVector: Float32Array;
   readonly queryWeightMatrix: Float32Array;
@@ -39,8 +43,10 @@ export class AttentionLayer {
   readonly #wasmInstance: WebAssembly.Instance;
   readonly #wasmState: number;
 
-  constructor({ embeddingSize, keyValueSize, queryHeadCount, sequenceLength }: AttentionLayerInit) {
-    const wasmInstance = new WebAssembly.Instance(AttentionLayer.wasmModule!);
+  private constructor(
+    { embeddingSize, keyValueSize, queryHeadCount, sequenceLength }: AttentionLayerInit,
+    wasmInstance: WebAssembly.Instance,
+  ) {
     const wasmExports = wasmInstance.exports as WasmExports;
     const wasmState = wasmExports.init(embeddingSize, keyValueSize, queryHeadCount, sequenceLength);
 

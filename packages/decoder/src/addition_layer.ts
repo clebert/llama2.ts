@@ -7,8 +7,16 @@ interface WasmExports extends WebAssembly.Exports {
   forward(state: number): void;
 }
 
+export interface AdditionLayerInit {
+  readonly embeddingSize: number;
+}
+
 export class AdditionLayer {
   static wasmModule: WebAssembly.Module | undefined;
+
+  static async instantiate(init: AdditionLayerInit): Promise<AdditionLayer> {
+    return new AdditionLayer(init, await WebAssembly.instantiate(AdditionLayer.wasmModule!));
+  }
 
   readonly inputVector: Float32Array;
   readonly outputVector: Float32Array;
@@ -16,8 +24,7 @@ export class AdditionLayer {
   readonly #wasmInstance: WebAssembly.Instance;
   readonly #wasmState: number;
 
-  constructor(embeddingSize: number) {
-    const wasmInstance = new WebAssembly.Instance(AdditionLayer.wasmModule!);
+  private constructor({ embeddingSize }: AdditionLayerInit, wasmInstance: WebAssembly.Instance) {
     const wasmExports = wasmInstance.exports as WasmExports;
     const wasmState = wasmExports.init(embeddingSize);
 

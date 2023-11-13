@@ -32,7 +32,7 @@ const checkpoint = await loadCheckpoint(dataSource, hyperparams, { sequenceLengt
 await file.close();
 
 const tokenizer = new Tokenizer(vocab);
-const decoder = new Decoder(hyperparams, checkpoint);
+const decoder = await Decoder.instantiate(hyperparams, checkpoint);
 
 const tokenIds = [tokenizer.bosTokenId];
 

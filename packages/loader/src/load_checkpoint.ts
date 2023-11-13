@@ -26,7 +26,7 @@ export async function loadCheckpoint(
   const attentionLayers: AttentionLayer[] = [];
 
   for (let index = 0; index < hyperparams.layerCount; index += 1) {
-    const attentionLayer = new AttentionLayer({ ...hyperparams, sequenceLength });
+    const attentionLayer = await AttentionLayer.instantiate({ ...hyperparams, sequenceLength });
 
     await dataSource.next(attentionLayer.normWeightVector);
     await dataSource.next(attentionLayer.queryWeightMatrix);
@@ -40,7 +40,7 @@ export async function loadCheckpoint(
   const fnnLayers: FnnLayer[] = [];
 
   for (let index = 0; index < hyperparams.layerCount; index += 1) {
-    const fnnLayer = new FnnLayer(hyperparams);
+    const fnnLayer = await FnnLayer.instantiate(hyperparams);
 
     await dataSource.next(fnnLayer.normWeightVector);
     await dataSource.next(fnnLayer.gateWeightMatrix);
@@ -50,7 +50,7 @@ export async function loadCheckpoint(
     fnnLayers.push(fnnLayer);
   }
 
-  const linearLayer = new LinearLayer(hyperparams);
+  const linearLayer = await LinearLayer.instantiate(hyperparams);
 
   await dataSource.next(linearLayer.normWeightVector);
 
