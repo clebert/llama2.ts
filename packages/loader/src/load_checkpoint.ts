@@ -4,7 +4,7 @@ import type { Checkpoint, Hyperparams } from '@llama2/decoder';
 import { AttentionLayer, FnnLayer, LinearLayer } from '@llama2/decoder';
 
 export interface LoadCheckpointOptions {
-  readonly sequenceLength?: number;
+  readonly maxSequenceLength?: number;
 }
 
 export async function loadCheckpoint(
@@ -22,11 +22,11 @@ export async function loadCheckpoint(
     embeddingVectors.push(embeddingVector);
   }
 
-  const sequenceLength = options?.sequenceLength ?? hyperparams.maxSequenceLength;
+  const maxSequenceLength = options?.maxSequenceLength ?? hyperparams.maxSequenceLength;
   const attentionLayers: AttentionLayer[] = [];
 
   for (let index = 0; index < hyperparams.layerCount; index += 1) {
-    const attentionLayer = await AttentionLayer.instantiate({ ...hyperparams, sequenceLength });
+    const attentionLayer = await AttentionLayer.instantiate({ ...hyperparams, maxSequenceLength });
 
     await dataSource.next(attentionLayer.normWeightVector);
     await dataSource.next(attentionLayer.queryWeightMatrix);

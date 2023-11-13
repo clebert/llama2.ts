@@ -5,7 +5,7 @@ interface WasmExports extends WebAssembly.Exports {
     embedding_size: number,
     key_value_size: number,
     query_head_count: number,
-    sequence_len: number,
+    max_sequence_len: number,
   ): number;
 
   getInputVector(state: number): number;
@@ -22,7 +22,7 @@ export interface AttentionLayerInit {
   readonly embeddingSize: number;
   readonly keyValueSize: number;
   readonly queryHeadCount: number;
-  readonly sequenceLength: number;
+  readonly maxSequenceLength: number;
 }
 
 export class AttentionLayer {
@@ -44,11 +44,17 @@ export class AttentionLayer {
   readonly #wasmState: number;
 
   private constructor(
-    { embeddingSize, keyValueSize, queryHeadCount, sequenceLength }: AttentionLayerInit,
+    { embeddingSize, keyValueSize, queryHeadCount, maxSequenceLength }: AttentionLayerInit,
     wasmInstance: WebAssembly.Instance,
   ) {
     const wasmExports = wasmInstance.exports as WasmExports;
-    const wasmState = wasmExports.init(embeddingSize, keyValueSize, queryHeadCount, sequenceLength);
+
+    const wasmState = wasmExports.init(
+      embeddingSize,
+      keyValueSize,
+      queryHeadCount,
+      maxSequenceLength,
+    );
 
     this.inputVector = new Float32Array(
       wasmExports.memory.buffer,

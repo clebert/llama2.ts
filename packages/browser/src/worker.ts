@@ -21,17 +21,15 @@ async function main(): Promise<void> {
   console.log({ hyperparams });
 
   const vocab = await loadVocab(dataSource, hyperparams.vocabSize);
-  const sequenceLength = hyperparams.maxSequenceLength;
-  const checkpoint = await loadCheckpoint(dataSource, hyperparams, { sequenceLength });
-
+  const maxSequenceLength = hyperparams.maxSequenceLength;
+  const checkpoint = await loadCheckpoint(dataSource, hyperparams, { maxSequenceLength });
   const tokenizer = new Tokenizer(vocab);
   const decoder = await Decoder.instantiate(hyperparams, checkpoint);
-
   const tokenIds = [tokenizer.bosTokenId];
 
   let totalTime = 0;
 
-  while (tokenIds.length <= sequenceLength) {
+  while (tokenIds.length <= maxSequenceLength) {
     const position = tokenIds.length - 1;
     const tokenId = tokenIds[position]!;
 

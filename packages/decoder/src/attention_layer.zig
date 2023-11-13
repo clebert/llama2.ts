@@ -28,13 +28,13 @@ export fn init(
     embedding_size: usize,
     key_value_size: usize,
     query_head_count: usize,
-    sequence_len: usize,
+    max_sequence_len: usize,
 ) ?*const State {
     const allocator = std.heap.page_allocator;
     const head_size = embedding_size / query_head_count;
     const state = allocator.create(State) catch return null;
-    const key_vectors = allocator.alloc([]f32, sequence_len) catch return null;
-    const value_vectors = allocator.alloc([]f32, sequence_len) catch return null;
+    const key_vectors = allocator.alloc([]f32, max_sequence_len) catch return null;
+    const value_vectors = allocator.alloc([]f32, max_sequence_len) catch return null;
 
     for (key_vectors) |*key_vector| {
         key_vector.* = allocator.alloc(f32, key_value_size) catch return null;
@@ -78,7 +78,7 @@ export fn init(
         .query_vector = allocator.alloc(f32, embedding_size) catch return null,
         .key_vectors = key_vectors,
         .value_vectors = value_vectors,
-        .scores = allocator.alloc(f32, sequence_len) catch return null,
+        .scores = allocator.alloc(f32, max_sequence_len) catch return null,
     };
 
     return state;

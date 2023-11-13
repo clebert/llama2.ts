@@ -23,7 +23,7 @@ npm run compile
 ```
 
 ```
-npm run start:node -- --modelPath models/tinystories_15m.bin
+npm run start:node -- complete models/tinystories_15m.bin
 ```
 
 Output:
@@ -83,10 +83,9 @@ npm run compile
 ```
 
 ```sh
-npm run start:node -- \
-  --modelPath "models/tiny_llama.bin" \
+npm run start:node -- complete models/tiny_llama.bin \
   --prompt "This is an example" \
-  --sequenceLength 40
+  --maxSequenceLength 40
 ```
 
 Output:
