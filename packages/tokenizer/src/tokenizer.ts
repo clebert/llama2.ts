@@ -1,7 +1,8 @@
 import type { Vocab, VocabEntry } from '@llama2/loader';
 
-export interface TokenizerDecodeOptions {
+export interface TokenizerEncodeOptions {
   readonly bos?: boolean;
+  readonly eos?: boolean;
 }
 
 export class Tokenizer {
@@ -21,12 +22,16 @@ export class Tokenizer {
     this.#assert(`<0x01>`, 4);
   }
 
-  encode(input: string): number[] {
+  encode(input: string, options?: TokenizerEncodeOptions): number[] {
     if (input.trim() === ``) {
       return [];
     }
 
     const tokenIds: number[] = [];
+
+    if (options?.bos) {
+      tokenIds.push(this.bosTokenId);
+    }
 
     for (const token of [...` ${input}`]) {
       const entry = this.#vocab.entriesByToken.get(token);
@@ -38,6 +43,10 @@ export class Tokenizer {
           tokenIds.push(byte + 3);
         }
       }
+    }
+
+    if (options?.eos) {
+      tokenIds.push(this.eosTokenId);
     }
 
     while (true) {

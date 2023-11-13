@@ -132,10 +132,50 @@ test(`encode utf-8`, () => {
   expect(output).toBe(` ${input}`);
 });
 
+test(`encode hello string with bos`, () => {
+  const tokenizer = new Tokenizer(vocab15m);
+  const input = `Hello`;
+  const tokenIds = tokenizer.encode(input, { bos: true });
+
+  expect(tokenIds).toStrictEqual([tokenizer.bosTokenId, 15043]);
+
+  const output = tokenIds.map((tokenId) => vocab15m.entriesByTokenId[tokenId]!.token).join(``);
+
+  expect(output).toBe(`<s> ${input}`);
+});
+
+test(`encode hello string with bos and eos`, () => {
+  const tokenizer = new Tokenizer(vocab15m);
+  const input = `Hello`;
+  const tokenIds = tokenizer.encode(input, { bos: true, eos: true });
+
+  expect(tokenIds).toStrictEqual([tokenizer.bosTokenId, 15043, tokenizer.eosTokenId]);
+
+  const output = tokenIds.map((tokenId) => vocab15m.entriesByTokenId[tokenId]!.token).join(``);
+
+  expect(output).toBe(`<s> ${input}</s>`);
+});
+
 test(`encode empty string`, () => {
   const tokenizer = new Tokenizer(vocab15m);
   const input = ``;
   const tokenIds = tokenizer.encode(input);
+
+  expect(tokenIds).toStrictEqual([]);
+});
+
+test(`encode empty string with bos`, () => {
+  const tokenizer = new Tokenizer(vocab15m);
+  const input = ``;
+  const tokenIds = tokenizer.encode(input, { bos: true });
+
+  expect(tokenIds).toStrictEqual([]);
+});
+
+test(`encode empty string with bos and eos`, () => {
+  const tokenizer = new Tokenizer(vocab15m);
+  const input = ``;
+  const tokenIds = tokenizer.encode(input, { bos: true, eos: true });
 
   expect(tokenIds).toStrictEqual([]);
 });

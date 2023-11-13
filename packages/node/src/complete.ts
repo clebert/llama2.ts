@@ -30,15 +30,9 @@ export async function complete(args: CompleteArgs): Promise<void> {
 
   const tokenizer = new Tokenizer(vocab);
   const decoder = await Decoder.instantiate(hyperparams, checkpoint);
-  const promptTokenIds = tokenizer.encode(prompt);
+  const promptTokenIds = tokenizer.encode(prompt, { bos: true });
 
   let nextTokenId = promptTokenIds.shift() ?? tokenizer.bosTokenId;
-
-  const firstToken = tokenizer.decode(nextTokenId, tokenizer.bosTokenId);
-
-  if (firstToken) {
-    stdout.write(firstToken);
-  }
 
   for (let position = 0; position < maxSequenceLength; position += 1) {
     const tokenId = nextTokenId;
