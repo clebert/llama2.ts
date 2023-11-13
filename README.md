@@ -96,7 +96,7 @@ This is an example of a "fake" 19th century letter.
 The letter is dated 1840 and is signed by the author, "J. B. C."
 ```
 
-## Example Model Files
+## TinyStories Model Files
 
 The transformer model files located in the `models` directory were
 [trained](https://github.com/karpathy/llama2.c#models) on the TinyStories dataset by Andrej Karpathy
@@ -189,7 +189,7 @@ row-first order.
 
 ### Linear Layer
 
-| Element            | Type                                  |
-| ------------------ | ------------------------------------- |
-| normWeightVector   | `embeddingSize` x `f32`               |
-| outputWeightMatrix | `vocabSize` x `embeddingSize` x `f32` |
+| Element            | Type                                  | Note                           |
+| ------------------ | ------------------------------------- | ------------------------------ |
+| normWeightVector   | `embeddingSize` x `f32`               |                                |
+| outputWeightMatrix | `vocabSize` x `embeddingSize` x `f32` | if `sharedOutputWeight` == `0` |
