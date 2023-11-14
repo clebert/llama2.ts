@@ -25,15 +25,13 @@
     ".gitignore": [
       {
         "value": [
+          "/.turbo",
           "/models/*",
           "!/models/tinystories_15m.bin",
           "!/models/tinystories_260k.bin",
           "/packages/*/dist",
           "/packages/*/lib",
-          "*.tsbuildinfo",
-          ".turbo",
-          "zig-cache",
-          "zig-out"
+          "*.tsbuildinfo"
         ]
       }
     ],
@@ -44,7 +42,13 @@
     ],
     "ci.sh": [
       {
-        "value": ["npm run format:check", "npm run lint", "npm test", "npm run compile"]
+        "value": [
+          "npm run format:check",
+          "npm run lint",
+          "npm test",
+          "npm run compile",
+          "npm run build"
+        ]
       }
     ],
     "jest.config.json": [
@@ -74,13 +78,6 @@
           "include": ["**/*.js"]
         },
         "array_merge": "replace"
-      }
-    ],
-    "tsconfig.base.json": [
-      {
-        "value": {
-          "compilerOptions": { "composite": true, "incremental": true }
-        }
       }
     ]
   }

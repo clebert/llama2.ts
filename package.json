@@ -11,18 +11,18 @@
   "scripts": {
     "build": "turbo build",
     "build:watch": "turbo build:watch",
-    "precompile": "turbo compile",
+    "precompile": "zig build -Doptimize=ReleaseFast",
     "compile": "tsc --build",
     "compile:clean": "tsc --build --clean",
     "compile:watch": "tsc --build --watch --preserveWatchOutput",
-    "preformat": "turbo format",
+    "preformat": "zig fmt *.zig src/*.zig src/simd/*.zig",
     "format": "prettier --write .",
-    "preformat:check": "turbo format:check",
+    "preformat:check": "zig fmt --check *.zig src/*.zig src/simd/*.zig",
     "format:check": "prettier --check .",
     "lint": "eslint .",
     "start:browser": "turbo --log-prefix=none start:browser",
     "start:node": "node packages/node/lib/main.js",
-    "pretest": "turbo test",
+    "pretest": "zig build test --summary all",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --silent"
   },
   "devDependencies": {

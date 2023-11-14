@@ -14,5 +14,6 @@ await yargs(process.argv.slice(2))
         .options({ prompt: { type: `string` }, maxSequenceLength: { type: `number` } }),
     async (args) => complete(args),
   )
+  .demandCommand()
   .strict()
   .parseAsync();

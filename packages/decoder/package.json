@@ -12,15 +12,8 @@
   "exports": "./lib/mod.js",
   "types": "./lib/mod.d.ts",
   "files": [
-    "lib",
-    "zig-out"
+    "lib"
   ],
-  "scripts": {
-    "compile": "zig build -Doptimize=ReleaseFast",
-    "format": "zig fmt *.zig src/*.zig src/simd/*.zig",
-    "format:check": "zig fmt --check *.zig src/*.zig src/simd/*.zig",
-    "test": "zig build test --summary all"
-  },
   "publishConfig": {
     "access": "public"
   }

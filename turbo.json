@@ -7,19 +7,7 @@
     "build:watch": {
       "cache": false
     },
-    "compile": {
-      "cache": false
-    },
-    "format": {
-      "cache": false
-    },
-    "format:check": {
-      "cache": false
-    },
     "start:browser": {
-      "cache": false
-    },
-    "test": {
       "cache": false
     }
   }

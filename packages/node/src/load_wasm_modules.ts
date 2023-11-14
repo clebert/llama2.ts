@@ -1,9 +1,12 @@
 import { AdditionLayer, AttentionLayer, FnnLayer, LinearLayer } from '@llama2/decoder';
 import { readFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const moduleUrl = import.meta.resolve(`@llama2/decoder`);
+const wasmLibPath = join(
+  dirname(fileURLToPath(import.meta.resolve(`@llama2/decoder`))),
+  `../../decoder/lib/wasm`,
+);
 
 export async function loadWasmModules(): Promise<void> {
   AdditionLayer.wasmModule = await loadWasmModule(`addition_layer`);
@@ -13,7 +16,5 @@ export async function loadWasmModules(): Promise<void> {
 }
 
 async function loadWasmModule(moduleName: string): Promise<WebAssembly.Module> {
-  return WebAssembly.compile(
-    await readFile(join(fileURLToPath(moduleUrl), `../../zig-out/lib/${moduleName}.wasm`)),
-  );
+  return WebAssembly.compile(await readFile(join(wasmLibPath, `${moduleName}.wasm`)));
 }

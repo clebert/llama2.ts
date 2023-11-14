@@ -1,5 +1,13 @@
 // @ts-check
 
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
+
+const wasmLibPath = join(
+  dirname(fileURLToPath(import.meta.resolve(`@llama2/decoder`))),
+  `../../decoder/lib/wasm`,
+);
+
 /** @type {import('aws-simple').ConfigFileDefaultExport} */
 export default () => ({
   terminationProtectionEnabled: true,
@@ -25,7 +33,7 @@ export default () => ({
     {
       type: `folder`,
       publicPath: `/static/wasm/*`,
-      path: `../decoder/zig-out/lib`,
+      path: wasmLibPath,
       responseHeaders: { 'cache-control': `max-age=157680000` }, // 5 years
     },
   ],

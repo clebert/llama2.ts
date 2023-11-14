@@ -2,12 +2,10 @@
 /node_modules
 /zig-cache
 /zig-out
+/.turbo
 /models/*
 !/models/tinystories_15m.bin
 !/models/tinystories_260k.bin
 /packages/*/dist
 /packages/*/lib
 *.tsbuildinfo
-.turbo
-zig-cache
-zig-out
