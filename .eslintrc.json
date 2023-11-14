@@ -145,7 +145,6 @@
       }
     ],
     "import/no-extraneous-dependencies": "error",
-    "import/no-relative-packages": "error",
     "import/order": [
       "error",
       {

@@ -6,6 +6,7 @@
     "https://raw.githubusercontent.com/clebert/onecfg-lib/main/lib/onecfg-github-ci.json",
     "https://raw.githubusercontent.com/clebert/onecfg-lib/main/lib/onecfg-github-ci-node.json",
     "https://raw.githubusercontent.com/clebert/onecfg-lib/main/lib/onecfg-github-ci-npm.json",
+    "https://raw.githubusercontent.com/clebert/onecfg-lib/main/lib/onecfg-github-ci-zig.json",
     "https://raw.githubusercontent.com/clebert/onecfg-lib/main/lib/onecfg-jest.json",
     "https://raw.githubusercontent.com/clebert/onecfg-lib/main/lib/onecfg-node.json",
     "https://raw.githubusercontent.com/clebert/onecfg-lib/main/lib/onecfg-prettier.json",
@@ -19,26 +20,6 @@
     ".eslintignore": [
       {
         "value": ["/packages/*/dist", "/packages/*/lib"]
-      }
-    ],
-    ".eslintrc.json": [
-      {
-        "value": {
-          "rules": {
-            "import/no-relative-packages": "error"
-          }
-        }
-      }
-    ],
-    ".github/workflows/ci.yml": [
-      {
-        "value": {
-          "jobs": {
-            "CI": {
-              "steps": [{ "uses": "goto-bus-stop/setup-zig@v2" }]
-            }
-          }
-        }
       }
     ],
     ".gitignore": [
@@ -69,9 +50,6 @@
     "jest.config.json": [
       {
         "value": {
-          "coverageThreshold": {
-            "global": { "branches": 0, "functions": 0, "lines": 0, "statements": 0 }
-          },
           "moduleNameMapper": {
             "@llama2/(.*)": "<rootDir>/packages/$1/src/mod.ts"
           }
