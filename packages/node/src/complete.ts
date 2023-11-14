@@ -1,5 +1,5 @@
 import { computeArgmax } from './compute_argmax.js';
-import { Decoder } from '@llama2/decoder';
+import { Decoder } from '@llama2/decoder-wasm';
 import { createDataSource, loadCheckpoint, loadHyperparams, loadVocab } from '@llama2/loader';
 import { Tokenizer } from '@llama2/tokenizer';
 import { open } from 'node:fs/promises';

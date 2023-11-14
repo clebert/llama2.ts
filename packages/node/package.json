@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@llama2/decoder": "*",
+    "@llama2/decoder-wasm": "*",
     "@llama2/loader": "*",
     "@llama2/tokenizer": "*",
     "yargs": "^17.7.2"

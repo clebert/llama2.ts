@@ -3,10 +3,7 @@
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 
-const wasmLibPath = join(
-  dirname(fileURLToPath(import.meta.resolve(`@llama2/decoder`))),
-  `../../decoder/lib/wasm`,
-);
+const wasmPath = join(dirname(fileURLToPath(import.meta.resolve(`@llama2/decoder-wasm`))), `wasm`);
 
 /** @type {import('aws-simple').ConfigFileDefaultExport} */
 export default () => ({
@@ -33,7 +30,7 @@ export default () => ({
     {
       type: `folder`,
       publicPath: `/static/wasm/*`,
-      path: wasmLibPath,
+      path: wasmPath,
       responseHeaders: { 'cache-control': `max-age=157680000` }, // 5 years
     },
   ],

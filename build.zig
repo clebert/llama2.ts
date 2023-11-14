@@ -3,10 +3,10 @@ const std = @import("std");
 pub fn build(b: *std.Build) void {
     const optimize = b.standardOptimizeOption(.{});
 
-    buildWasmLib(b, "decoder", "addition_layer", optimize);
-    buildWasmLib(b, "decoder", "attention_layer", optimize);
-    buildWasmLib(b, "decoder", "fnn_layer", optimize);
-    buildWasmLib(b, "decoder", "linear_layer", optimize);
+    buildWasmLib(b, "decoder-wasm", "addition_layer", optimize);
+    buildWasmLib(b, "decoder-wasm", "attention_layer", optimize);
+    buildWasmLib(b, "decoder-wasm", "fnn_layer", optimize);
+    buildWasmLib(b, "decoder-wasm", "linear_layer", optimize);
     buildTests(b);
 }
 

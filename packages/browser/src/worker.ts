@@ -1,6 +1,12 @@
 import { computeArgmax } from './compute_argmax.js';
 import { loadWasmModule } from './load_wasm_module.js';
-import { AdditionLayer, AttentionLayer, Decoder, FnnLayer, LinearLayer } from '@llama2/decoder';
+import {
+  AdditionLayer,
+  AttentionLayer,
+  Decoder,
+  FnnLayer,
+  LinearLayer,
+} from '@llama2/decoder-wasm';
 import { createDataSource, loadCheckpoint, loadHyperparams, loadVocab } from '@llama2/loader';
 import { Tokenizer } from '@llama2/tokenizer';
 

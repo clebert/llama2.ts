@@ -1,4 +1,4 @@
-import type { Hyperparams } from '@llama2/decoder';
+import type { Hyperparams } from '@llama2/decoder-wasm';
 
 import { createDataSource } from './create_data_source.js';
 import { loadHyperparams } from './load_hyperparams.js';

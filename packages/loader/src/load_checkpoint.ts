@@ -1,7 +1,7 @@
 import type { DataSource } from './create_data_source.js';
-import type { Checkpoint, Hyperparams } from '@llama2/decoder';
+import type { Checkpoint, Hyperparams } from '@llama2/decoder-wasm';
 
-import { AttentionLayer, FnnLayer, LinearLayer } from '@llama2/decoder';
+import { AttentionLayer, FnnLayer, LinearLayer } from '@llama2/decoder-wasm';
 
 export interface LoadCheckpointOptions {
   readonly maxSequenceLength?: number;
