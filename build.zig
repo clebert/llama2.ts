@@ -5,6 +5,7 @@ pub fn build(b: *std.Build) void {
     buildWasmLib(b, "decoder-wasm", "attention_layer");
     buildWasmLib(b, "decoder-wasm", "fnn_layer");
     buildWasmLib(b, "decoder-wasm", "linear_layer");
+    buildWasmLib(b, "decoder-wasm", "vector_kernel");
     buildTests(b);
 }
 
