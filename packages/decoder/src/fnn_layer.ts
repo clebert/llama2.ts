@@ -8,7 +8,7 @@ interface WasmExports extends WebAssembly.Exports {
   getUpWeightMatrix(state: number): number;
   getDownWeightMatrix(state: number): number;
   getOutputVector(state: number): number;
-  forward(state: number): number;
+  forward(state: number): void;
 }
 
 export interface FnnLayerInit {
@@ -80,9 +80,9 @@ export class FnnLayer {
     this.#wasmState = wasmState;
   }
 
-  forward(): number {
+  forward(): void {
     const wasmExports = this.#wasmInstance.exports as WasmExports;
 
-    return wasmExports.forward(this.#wasmState);
+    wasmExports.forward(this.#wasmState);
   }
 }

@@ -6,7 +6,7 @@ interface WasmExports extends WebAssembly.Exports {
   getNormWeightVector(state: number): number;
   getOutputWeightMatrix(state: number): number;
   getOutputVector(state: number): number;
-  forward(state: number): number;
+  forward(state: number): void;
 }
 
 export interface LinearLayerInit {
@@ -64,9 +64,9 @@ export class LinearLayer {
     this.#wasmState = wasmState;
   }
 
-  forward(): number {
+  forward(): void {
     const wasmExports = this.#wasmInstance.exports as WasmExports;
 
-    return wasmExports.forward(this.#wasmState);
+    wasmExports.forward(this.#wasmState);
   }
 }
