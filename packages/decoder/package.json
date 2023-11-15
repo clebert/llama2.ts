@@ -1,10 +1,10 @@
 {
-  "name": "@llama2/decoder-wasm",
+  "name": "@llama2/decoder",
   "version": "1.0.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/clebert/llama2.ts.git",
-    "directory": "packages/decoder-wasm"
+    "directory": "packages/decoder"
   },
   "license": "MIT",
   "author": "Clemens Akens",

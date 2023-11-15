@@ -3,7 +3,7 @@
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 
-const wasmPath = join(dirname(fileURLToPath(import.meta.resolve(`@llama2/decoder-wasm`))), `wasm`);
+const wasmPath = join(dirname(fileURLToPath(import.meta.resolve(`@llama2/decoder`))), `wasm`);
 
 /** @type {import('aws-simple').ConfigFileDefaultExport} */
 export default () => ({

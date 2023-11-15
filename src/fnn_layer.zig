@@ -61,7 +61,7 @@ export fn getOutputVector(state: *const State) [*]f32 {
 
 // SwiGLU activation function: https://arxiv.org/abs/2002.05202
 export fn forward(state: *const State) void {
-    rms_norm.compute(state.input_vector, state.norm_weight_vector, state.input_vector);
+    rms_norm.compute(state.norm_weight_vector, state.input_vector, state.input_vector);
 
     matrix_vector_product.compute(
         state.gate_weight_matrix,

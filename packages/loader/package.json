@@ -15,7 +15,7 @@
     "lib"
   ],
   "dependencies": {
-    "@llama2/decoder-wasm": "*"
+    "@llama2/decoder": "*"
   },
   "devDependencies": {
     "@jest/globals": "^29.7.0"

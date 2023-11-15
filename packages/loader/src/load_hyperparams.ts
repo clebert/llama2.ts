@@ -1,5 +1,5 @@
 import type { DataSource } from './create_data_source.js';
-import type { Hyperparams } from '@llama2/decoder-wasm';
+import type { Hyperparams } from '@llama2/decoder';
 
 export async function loadHyperparams(dataSource: DataSource): Promise<Hyperparams> {
   const headerData = new Uint8Array(256);

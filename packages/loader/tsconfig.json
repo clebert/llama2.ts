@@ -9,5 +9,5 @@
   },
   "extends": "../../tsconfig.base.json",
   "include": ["src/**/*"],
-  "references": [{ "path": "../decoder-wasm" }]
+  "references": [{ "path": "../decoder" }]
 }

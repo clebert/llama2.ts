@@ -20,7 +20,7 @@
       "path": "packages/browser"
     },
     {
-      "path": "packages/decoder-wasm"
+      "path": "packages/decoder"
     },
     {
       "path": "packages/loader"

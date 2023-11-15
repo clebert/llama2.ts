@@ -1,11 +1,11 @@
 const std = @import("std");
 
 pub fn build(b: *std.Build) void {
-    buildWasmLib(b, "decoder-wasm", "addition_layer");
-    buildWasmLib(b, "decoder-wasm", "attention_layer");
-    buildWasmLib(b, "decoder-wasm", "fnn_layer");
-    buildWasmLib(b, "decoder-wasm", "linear_layer");
-    buildWasmLib(b, "decoder-wasm", "vector_kernel");
+    buildWasmLib(b, "decoder", "addition_layer");
+    buildWasmLib(b, "decoder", "attention_layer");
+    buildWasmLib(b, "decoder", "fnn_layer");
+    buildWasmLib(b, "decoder", "linear_layer");
+    buildWasmLib(b, "decoder", "vector_kernel");
     buildTests(b);
 }
 

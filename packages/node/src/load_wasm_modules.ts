@@ -1,9 +1,9 @@
-import { AdditionLayer, AttentionLayer, FnnLayer, LinearLayer } from '@llama2/decoder-wasm';
+import { AdditionLayer, AttentionLayer, FnnLayer, LinearLayer } from '@llama2/decoder';
 import { readFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const wasmPath = join(dirname(fileURLToPath(import.meta.resolve(`@llama2/decoder-wasm`))), `wasm`);
+const wasmPath = join(dirname(fileURLToPath(import.meta.resolve(`@llama2/decoder`))), `wasm`);
 
 export async function loadWasmModules(): Promise<void> {
   AdditionLayer.wasmModule = await loadWasmModule(`addition_layer`);

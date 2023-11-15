@@ -8,7 +8,7 @@
     "start:browser": "aws-simple start"
   },
   "dependencies": {
-    "@llama2/decoder-wasm": "*",
+    "@llama2/decoder": "*",
     "@llama2/loader": "*",
     "@llama2/tokenizer": "*"
   },

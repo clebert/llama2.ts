@@ -12,7 +12,7 @@ const dev = nodeEnv !== `production`;
 /** @type {import('esbuild').BuildOptions} */
 const mainBuildOptions = {
   alias: {
-    '@llama2/decoder-wasm': `../decoder-wasm/src/mod.ts`,
+    '@llama2/decoder': `../decoder/src/mod.ts`,
     '@llama2/loader': `../loader/src/mod.ts`,
     '@llama2/tokenizer': `../tokenizer/src/mod.ts`,
   },

@@ -113,7 +113,7 @@ export fn getOutputVector(state: *const State) [*]f32 {
 }
 
 export fn forward(state: *const State, position: usize) void {
-    rms_norm.compute(state.input_vector, state.norm_weight_vector, state.input_vector);
+    rms_norm.compute(state.norm_weight_vector, state.input_vector, state.input_vector);
 
     matrix_vector_product.compute(
         state.query_weight_matrix,
