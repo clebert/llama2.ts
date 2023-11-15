@@ -1,12 +1,10 @@
 const std = @import("std");
 
 pub fn build(b: *std.Build) void {
-    const optimize = b.standardOptimizeOption(.{});
-
-    buildWasmLib(b, "decoder-wasm", "addition_layer", optimize);
-    buildWasmLib(b, "decoder-wasm", "attention_layer", optimize);
-    buildWasmLib(b, "decoder-wasm", "fnn_layer", optimize);
-    buildWasmLib(b, "decoder-wasm", "linear_layer", optimize);
+    buildWasmLib(b, "decoder-wasm", "addition_layer");
+    buildWasmLib(b, "decoder-wasm", "attention_layer");
+    buildWasmLib(b, "decoder-wasm", "fnn_layer");
+    buildWasmLib(b, "decoder-wasm", "linear_layer");
     buildTests(b);
 }
 
@@ -22,13 +20,12 @@ fn buildWasmLib(
     b: *std.Build,
     comptime package_name: []const u8,
     comptime lib_name: []const u8,
-    optimize: std.builtin.OptimizeMode,
 ) void {
     const wasm_lib = b.addSharedLibrary(.{
         .name = lib_name,
         .root_source_file = .{ .path = "src/" ++ lib_name ++ ".zig" },
         .target = wasm_target,
-        .optimize = optimize,
+        .optimize = std.builtin.OptimizeMode.ReleaseSmall,
     });
 
     wasm_lib.rdynamic = true;
