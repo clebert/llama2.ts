@@ -37,7 +37,7 @@ fn computeFixed(comptime vector_len: comptime_int, input_vector: []const f32) f3
     return @reduce(.Add, output_vector);
 }
 
-test "compute sum" {
+test "compute reduce-add" {
     const allocator = std.testing.allocator;
 
     for (0..2) |vector_len_subtrahend| {
