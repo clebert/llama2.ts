@@ -50,7 +50,7 @@ fn computeFixed(
     }
 }
 
-test "compute addition" {
+test "addition" {
     const allocator = std.testing.allocator;
 
     for (0..2) |vector_len_subtrahend| {

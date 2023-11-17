@@ -50,7 +50,7 @@ fn computeFixed(
     }
 }
 
-test "compute hadamard product" {
+test "hadamard_product" {
     const allocator = std.testing.allocator;
 
     for (0..2) |vector_len_subtrahend| {

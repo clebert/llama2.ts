@@ -18,7 +18,7 @@ pub fn compute(weight_vector: []const f32, input_vector: []const f32, output_vec
     hadamard_product.compute(weight_vector, output_vector, output_vector);
 }
 
-test "compute rms norm" {
+test "rms_norm" {
     const allocator = std.testing.allocator;
     const weight_vector = [_]f32{ 5, 6, 7, 8 };
     const input_vector = [_]f32{ 1, 2, 3, 4 };

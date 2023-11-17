@@ -12,7 +12,7 @@ pub fn compute(input_vector: []const f32, output_vector: []f32) void {
     scalar_divison.compute(output_vector, reduce_add.compute(output_vector), output_vector);
 }
 
-test "compute softmax" {
+test "softmax" {
     const allocator = std.testing.allocator;
     const input_vector = [_]f32{ 0.1, 4.5, -0.2, 3.3, 5.4 };
     const output_vector = try allocator.alloc(f32, 5);

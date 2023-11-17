@@ -46,7 +46,7 @@ fn computeFixed(
     }
 }
 
-test "compute swish" {
+test "swish" {
     const allocator = std.testing.allocator;
 
     for (0..2) |vector_len_subtrahend| {

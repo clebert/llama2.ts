@@ -37,7 +37,7 @@ fn computeFixed(comptime vector_len: comptime_int, input_vector: []const f32, ou
     }
 }
 
-test "compute reduce-max" {
+test "reduce_max" {
     const allocator = std.testing.allocator;
 
     for (0..2) |vector_len_subtrahend| {
@@ -58,7 +58,7 @@ test "compute reduce-max" {
     }
 }
 
-test "compute reduce-max (reverse)" {
+test "reduce_max (reverse)" {
     const allocator = std.testing.allocator;
 
     for (0..2) |vector_len_subtrahend| {

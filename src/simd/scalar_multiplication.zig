@@ -44,7 +44,7 @@ fn computeFixed(
     }
 }
 
-test "compute scalar multiplication" {
+test "scalar_multiplication" {
     const allocator = std.testing.allocator;
 
     for (0..2) |vector_len_subtrahend| {

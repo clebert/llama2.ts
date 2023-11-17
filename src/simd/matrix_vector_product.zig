@@ -14,7 +14,7 @@ pub fn compute(input_matrix: []const f32, input_vector: []const f32, output_vect
     }
 }
 
-test "compute matrix-vector product" {
+test "matrix_vector_product" {
     const allocator = std.testing.allocator;
     const input_matrix = [_]f32{ 1, 2, 3, 4, 5, 6 };
     const input_vector = [_]f32{ 7, 8 };

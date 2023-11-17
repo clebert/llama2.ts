@@ -42,7 +42,7 @@ fn computeFixed(
     }
 }
 
-test "compute exp" {
+test "exp" {
     const allocator = std.testing.allocator;
 
     for (0..2) |vector_len_subtrahend| {

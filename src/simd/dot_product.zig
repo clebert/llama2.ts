@@ -48,7 +48,7 @@ fn computeFixed(
     return @reduce(.Add, output_vector);
 }
 
-test "compute dot product" {
+test "dot_product" {
     const allocator = std.testing.allocator;
 
     for (0..2) |vector_len_subtrahend| {
