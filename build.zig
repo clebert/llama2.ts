@@ -5,7 +5,6 @@ pub fn build(b: *std.Build) void {
     buildWasmLib(b, "decoder", "attention_layer");
     buildWasmLib(b, "decoder", "fnn_layer");
     buildWasmLib(b, "decoder", "linear_layer");
-    buildWasmLib(b, "decoder", "vector_kernel");
     buildTests(b);
 }
 
@@ -39,6 +38,8 @@ fn buildWasmLib(
 }
 
 fn buildTests(b: *std.Build) void {
+    const test_step = b.step("test", "Run tests");
+
     const simd_test = b.addTest(.{
         .root_source_file = .{ .path = "src/simd/test.zig" },
         .optimize = std.builtin.OptimizeMode.Debug,
@@ -46,5 +47,5 @@ fn buildTests(b: *std.Build) void {
 
     const run_simd_test = b.addRunArtifact(simd_test);
 
-    b.step("test", "Run tests").dependOn(&run_simd_test.step);
+    test_step.dependOn(&run_simd_test.step);
 }
