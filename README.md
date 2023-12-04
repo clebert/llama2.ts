@@ -55,7 +55,6 @@ Install `git-lfs` and clone the
 model from Hugging Face:
 
 ```sh
-# Make sure you have git-lfs installed (https://git-lfs.com)
 git lfs install
 ```
 
