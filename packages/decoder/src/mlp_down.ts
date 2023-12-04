@@ -21,25 +21,25 @@ export class MlpDown {
 
     this.downWeight = new Uint8Array(
       exports.memory.buffer,
-      checkNotNull(exports.getDownWeight(this.self), `downWeight`),
+      checkNotNull(exports.getDownWeight(this.self)),
       numLayers * outputSize * inputSize * 4,
     );
 
     this.inputVector = new Float32Array(
       exports.memory.buffer,
-      checkNotNull(exports.getInputVector(this.self), `inputVector`),
+      checkNotNull(exports.getInputVector(this.self)),
       inputSize,
     );
 
     this.outputVector = new Float32Array(
       exports.memory.buffer,
-      checkNotNull(exports.getOutputVector(this.self), `outputVector`),
+      checkNotNull(exports.getOutputVector(this.self)),
       outputSize,
     );
 
     this.residualVector = new Float32Array(
       exports.memory.buffer,
-      checkNotNull(exports.getResidualVector(this.self), `residualVector`),
+      checkNotNull(exports.getResidualVector(this.self)),
       outputSize,
     );
   }

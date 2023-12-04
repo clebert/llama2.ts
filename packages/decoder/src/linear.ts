@@ -21,25 +21,25 @@ export class Linear {
 
     this.normWeight = new Uint8Array(
       exports.memory.buffer,
-      checkNotNull(exports.getNormWeight(this.self), `normWeight`),
+      checkNotNull(exports.getNormWeight(this.self)),
       hiddenSize * 4,
     );
 
     this.outputWeight = new Uint8Array(
       exports.memory.buffer,
-      checkNotNull(exports.getOutputWeight(this.self), `outputWeight`),
+      checkNotNull(exports.getOutputWeight(this.self)),
       vocabSize * hiddenSize * 4,
     );
 
     this.inputVector = new Float32Array(
       exports.memory.buffer,
-      checkNotNull(exports.getInputVector(this.self), `inputVector`),
+      checkNotNull(exports.getInputVector(this.self)),
       hiddenSize,
     );
 
     this.outputVector = new Float32Array(
       exports.memory.buffer,
-      checkNotNull(exports.getOutputVector(this.self), `outputVector`),
+      checkNotNull(exports.getOutputVector(this.self)),
       vocabSize,
     );
   }

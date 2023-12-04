@@ -1,7 +1,7 @@
-export function checkNotNull(byteOffset: number, dataName: string): number {
-  if (byteOffset <= 0) {
-    throw new Error(`OOM: ${dataName}`);
+export function checkNotNull(ptr: number): number {
+  if (ptr <= 0) {
+    throw new Error(`OOM`);
   }
 
-  return byteOffset;
+  return ptr;
 }

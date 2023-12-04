@@ -22,31 +22,31 @@ export class MlpUp {
 
     this.normWeight = new Uint8Array(
       exports.memory.buffer,
-      checkNotNull(exports.getNormWeight(this.self), `normWeight`),
+      checkNotNull(exports.getNormWeight(this.self)),
       numLayers * inputSize * 4,
     );
 
     this.gateWeight = new Uint8Array(
       exports.memory.buffer,
-      checkNotNull(exports.getGateWeight(this.self), `gateWeight`),
+      checkNotNull(exports.getGateWeight(this.self)),
       numLayers * outputSize * inputSize * 4,
     );
 
     this.upWeight = new Uint8Array(
       exports.memory.buffer,
-      checkNotNull(exports.getUpWeight(this.self), `upWeight`),
+      checkNotNull(exports.getUpWeight(this.self)),
       numLayers * outputSize * inputSize * 4,
     );
 
     this.inputVector = new Float32Array(
       exports.memory.buffer,
-      checkNotNull(exports.getInputVector(this.self), `inputVector`),
+      checkNotNull(exports.getInputVector(this.self)),
       inputSize,
     );
 
     this.outputVector = new Float32Array(
       exports.memory.buffer,
-      checkNotNull(exports.getOutputVector(this.self), `outputVector`),
+      checkNotNull(exports.getOutputVector(this.self)),
       outputSize,
     );
   }

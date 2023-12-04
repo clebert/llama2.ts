@@ -37,13 +37,13 @@ export class Attention {
 
     this.normWeight = new Uint8Array(
       exports.memory.buffer,
-      checkNotNull(exports.getNormWeight(this.self), `normWeight`),
+      checkNotNull(exports.getNormWeight(this.self)),
       numLayers * querySize * 4,
     );
 
     this.queryWeight = new Uint8Array(
       exports.memory.buffer,
-      checkNotNull(exports.getQueryWeight(this.self), `queryWeight`),
+      checkNotNull(exports.getQueryWeight(this.self)),
       numLayers * querySize * querySize * 4,
     );
 
@@ -51,31 +51,31 @@ export class Attention {
 
     this.keyWeight = new Uint8Array(
       exports.memory.buffer,
-      checkNotNull(exports.getKeyWeight(this.self), `keyWeight`),
+      checkNotNull(exports.getKeyWeight(this.self)),
       numLayers * keyValueSize * querySize * 4,
     );
 
     this.valueWeight = new Uint8Array(
       exports.memory.buffer,
-      checkNotNull(exports.getValueWeight(this.self), `valueWeight`),
+      checkNotNull(exports.getValueWeight(this.self)),
       numLayers * keyValueSize * querySize * 4,
     );
 
     this.outputWeight = new Uint8Array(
       exports.memory.buffer,
-      checkNotNull(exports.getOutputWeight(this.self), `outputWeight`),
+      checkNotNull(exports.getOutputWeight(this.self)),
       numLayers * querySize * querySize * 4,
     );
 
     this.inputVector = new Float32Array(
       exports.memory.buffer,
-      checkNotNull(exports.getInputVector(this.self), `inputVector`),
+      checkNotNull(exports.getInputVector(this.self)),
       querySize,
     );
 
     this.outputVector = new Float32Array(
       exports.memory.buffer,
-      checkNotNull(exports.getOutputVector(this.self), `outputVector`),
+      checkNotNull(exports.getOutputVector(this.self)),
       querySize,
     );
   }
