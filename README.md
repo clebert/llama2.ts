@@ -51,8 +51,8 @@ Open: http://localhost:3000
 ## Using Llama 2 Models from Hugging Face
 
 Install `git-lfs` and clone the
-[TinyLlama-1.1B](https://huggingface.co/PY007/TinyLlama-1.1B-intermediate-step-715k-1.5T) model from
-Hugging Face:
+[TinyLlama-1.1B](https://huggingface.co/TinyLlama/TinyLlama-1.1B-intermediate-step-955k-token-2T)
+model from Hugging Face:
 
 ```sh
 # Make sure you have git-lfs installed (https://git-lfs.com)
@@ -60,7 +60,7 @@ git lfs install
 ```
 
 ```sh
-git clone https://huggingface.co/PY007/TinyLlama-1.1B-intermediate-step-715k-1.5T
+git clone https://huggingface.co/TinyLlama/TinyLlama-1.1B-intermediate-step-955k-token-2T
 ```
 
 Install the necessary Python packages and convert the Hugging Face model:
@@ -80,15 +80,7 @@ npm run compile
 ```
 
 ```sh
-npm run start:node -- complete models/tiny_llama_v1.bin \
-  --prompt "I have a dream" \
-  --maxSequenceLength 22
-```
-
-Output:
-
-```
-I have a dream that one day we will have a world where we can live in peace and harmony.
+npm run start:node -- complete models/tiny_llama_v1.bin --prompt "The number 42 is"
 ```
 
 ## Model Binary Data Format
