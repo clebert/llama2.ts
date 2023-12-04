@@ -13,11 +13,11 @@ def serialize_f32(file, tensor):
 
 
 # https://github.com/huggingface/transformers/blob/5c081e29930466ecf9a478727039d980131076d9/src/transformers/models/llama/convert_llama_weights_to_hf.py#L122C28-L122C35
-def unpermute(tensor, n_heads, dim1, dim2):
+def unpermute(tensor, num_query_heads, dim_1, dim_2):
     return (
-        tensor.view(n_heads, 2, dim1 // n_heads // 2, dim2)
+        tensor.view(num_query_heads, 2, dim_1 // num_query_heads // 2, dim_2)
         .transpose(1, 2)
-        .reshape(dim1, dim2)
+        .reshape(dim_1, dim_2)
     )
 
 
@@ -25,50 +25,51 @@ def write_model_file():
     model = AutoModelForCausalLM.from_pretrained(args.input_model_path)
 
     if model.config.model_type != "llama":
-        parser.error("Expected llama model")
+        parser.error("Expected Llama model")
 
     if model.config.rope_theta != 10000:
-        parser.error("Expected a RoPE frequency base of 10000")
+        parser.error("Expected RoPE frequency base of 10000")
+
+    if model.config.rms_norm_eps != 1e-05:
+        parser.error("Expected RMS norm eps of 1e-05")
 
     state = model.state_dict()
 
-    embedding_vectors = state["model.embed_tokens.weight"]
-    linear_norm_weight_vector = state["model.norm.weight"]
-    linear_output_weight_matrix = state[f"lm_head.weight"]
+    embedding_weight = state["model.embed_tokens.weight"]
+    linear_norm_weight = state["model.norm.weight"]
+    linear_output_weight = state[f"lm_head.weight"]
 
-    embedding_size = model.config.hidden_size
-    hidden_size = model.config.intermediate_size
-    layer_count = model.config.num_hidden_layers
-    query_head_count = model.config.num_attention_heads
-    key_value_head_count = model.config.num_key_value_heads
-    vocab_size = model.config.vocab_size
+    hidden_size = model.config.hidden_size
+    intermediate_size = model.config.intermediate_size
     max_sequence_length = model.config.max_position_embeddings
-    shared_output_weight = torch.equal(embedding_vectors, linear_output_weight_matrix)
+    vocab_size = model.config.vocab_size
+    num_layers = model.config.num_hidden_layers
+    num_query_heads = model.config.num_attention_heads
+    num_key_value_heads = model.config.num_key_value_heads
+    shared_output_weight = torch.equal(embedding_weight, linear_output_weight)
 
-    head_size = embedding_size // query_head_count
-    key_value_size = key_value_head_count * head_size
+    key_value_size = num_key_value_heads * (hidden_size // num_query_heads)
 
     os.makedirs(os.path.dirname(args.output_model_path), exist_ok=True)
 
     output_file = open(args.output_model_path, "wb")
 
-    # Header #######################################################################################
+    # Model Config #################################################################################
 
-    output_file.write("llama2".encode("utf-8"))
     output_file.write(struct.pack("B", 1))
-
-    # Hyperparameters
+    output_file.write(struct.pack("i", 5))
+    output_file.write("llama".encode("utf-8"))
 
     output_file.write(
         struct.pack(
             "iiiiiii",
-            embedding_size,
             hidden_size,
-            key_value_size,
-            layer_count,
-            query_head_count,
-            vocab_size,
+            intermediate_size,
             max_sequence_length,
+            vocab_size,
+            num_layers,
+            num_query_heads,
+            num_key_value_heads,
         )
     )
 
@@ -76,7 +77,7 @@ def write_model_file():
 
     output_file.write(b"\0" * (256 - output_file.tell()))
 
-    # Vocab entries ################################################################################
+    # Vocab Entries ################################################################################
 
     spp = SentencePieceProcessor(
         model_file=os.path.join(args.input_model_path, "tokenizer.model")
@@ -92,97 +93,80 @@ def write_model_file():
         output_file.write(struct.pack("fi", score, len(token)))
         output_file.write(token)
 
-    # Embeddings ###################################################################################
+    # Checkpoint Data ##############################################################################
 
-    serialize_f32(output_file, embedding_vectors)
+    serialize_f32(output_file, embedding_weight)
 
-    # Attention layers #############################################################################
+    for layer in range(num_layers):
+        attention_norm_weight = state[f"model.layers.{layer}.input_layernorm.weight"]
 
-    for layer in range(layer_count):
-        attention_norm_weight_vector = state[
-            f"model.layers.{layer}.input_layernorm.weight"
-        ]
+        serialize_f32(output_file, attention_norm_weight)
 
-        serialize_f32(output_file, attention_norm_weight_vector)
-
-        attention_query_weight_matrix = state[
-            f"model.layers.{layer}.self_attn.q_proj.weight"
-        ]
+    for layer in range(num_layers):
+        attention_query_weight = state[f"model.layers.{layer}.self_attn.q_proj.weight"]
 
         serialize_f32(
             output_file,
             unpermute(
-                attention_query_weight_matrix,
-                query_head_count,
-                embedding_size,
-                embedding_size,
+                attention_query_weight, num_query_heads, hidden_size, hidden_size
             ),
         )
 
-        attention_key_weight_matrix = state[
-            f"model.layers.{layer}.self_attn.k_proj.weight"
-        ]
+    for layer in range(num_layers):
+        attention_key_weight = state[f"model.layers.{layer}.self_attn.k_proj.weight"]
 
-        if query_head_count == key_value_head_count:
+        if num_query_heads == num_key_value_heads:
             serialize_f32(
                 output_file,
                 unpermute(
-                    attention_key_weight_matrix,
-                    query_head_count,
-                    embedding_size,
-                    embedding_size,
+                    attention_key_weight, num_query_heads, hidden_size, hidden_size
                 ),
             )
         else:
             serialize_f32(
                 output_file,
                 unpermute(
-                    attention_key_weight_matrix,
-                    key_value_head_count,
+                    attention_key_weight,
+                    num_key_value_heads,
                     key_value_size,
-                    embedding_size,
+                    hidden_size,
                 ),
             )
 
-        attention_value_weight_matrix = state[
-            f"model.layers.{layer}.self_attn.v_proj.weight"
-        ]
+    for layer in range(num_layers):
+        attention_value_weight = state[f"model.layers.{layer}.self_attn.v_proj.weight"]
 
-        serialize_f32(output_file, attention_value_weight_matrix)
+        serialize_f32(output_file, attention_value_weight)
 
-        attention_output_weight_matrix = state[
-            f"model.layers.{layer}.self_attn.o_proj.weight"
-        ]
+    for layer in range(num_layers):
+        attention_output_weight = state[f"model.layers.{layer}.self_attn.o_proj.weight"]
 
-        serialize_f32(output_file, attention_output_weight_matrix)
+        serialize_f32(output_file, attention_output_weight)
 
-    # FNN layers ###################################################################################
+    for layer in range(num_layers):
+        mlp_norm_weight = state[f"model.layers.{layer}.post_attention_layernorm.weight"]
 
-    for layer in range(layer_count):
-        fnn_norm_weight_vector = state[
-            f"model.layers.{layer}.post_attention_layernorm.weight"
-        ]
+        serialize_f32(output_file, mlp_norm_weight)
 
-        serialize_f32(output_file, fnn_norm_weight_vector)
+    for layer in range(num_layers):
+        mlp_gate_weight = state[f"model.layers.{layer}.mlp.gate_proj.weight"]
 
-        fnn_gate_weight_matrix = state[f"model.layers.{layer}.mlp.gate_proj.weight"]
+        serialize_f32(output_file, mlp_gate_weight)
 
-        serialize_f32(output_file, fnn_gate_weight_matrix)
+    for layer in range(num_layers):
+        mlp_up_weight = state[f"model.layers.{layer}.mlp.up_proj.weight"]
 
-        fnn_up_weight_matrix = state[f"model.layers.{layer}.mlp.up_proj.weight"]
+        serialize_f32(output_file, mlp_up_weight)
 
-        serialize_f32(output_file, fnn_up_weight_matrix)
+    for layer in range(num_layers):
+        mlp_down_weight = state[f"model.layers.{layer}.mlp.down_proj.weight"]
 
-        fnn_down_weight_matrix = state[f"model.layers.{layer}.mlp.down_proj.weight"]
+        serialize_f32(output_file, mlp_down_weight)
 
-        serialize_f32(output_file, fnn_down_weight_matrix)
-
-    # Linear layer #################################################################################
-
-    serialize_f32(output_file, linear_norm_weight_vector)
+    serialize_f32(output_file, linear_norm_weight)
 
     if not shared_output_weight:
-        serialize_f32(output_file, linear_output_weight_matrix)
+        serialize_f32(output_file, linear_output_weight)
 
     output_file.close()
 

@@ -3,8 +3,7 @@
 > Inference Llama 2 in pure TypeScript and Zig.
 
 **NOTE:** This project is currently a Work in Progress (WIP). Please be aware that everything can
-change at any time. As it stands now, it may not be highly useful for other users. Stay tuned for
-more updates as the project progresses.
+change at any time.
 
 ## Getting Started
 
@@ -23,7 +22,7 @@ npm run compile
 ```
 
 ```
-npm run start:node -- complete models/tinystories_15m.bin
+npm run start:node -- complete models/tinystories_15m_v1.bin
 ```
 
 Output:
@@ -36,8 +35,6 @@ Suddenly, a kind man came by and saw Lily. He asked her what was wrong. Lily tol
 ```
 
 ### Browser
-
-**NOTE:** I have only been able to run it successfully in Chrome so far. Safari crashes.
 
 Build the website and start the server:
 
@@ -73,7 +70,7 @@ pip3 install -r requirements.txt
 ```
 
 ```sh
-python3 convert_hf_model.py /path/to/TinyLlama-1.1B models/tiny_llama.bin
+python3 convert_hf_model.py /path/to/TinyLlama-1.1B models/tiny_llama_v1.bin
 ```
 
 Compile and run the program:
@@ -83,112 +80,70 @@ npm run compile
 ```
 
 ```sh
-npm run start:node -- complete models/tiny_llama.bin \
-  --prompt "This is an example" \
-  --maxSequenceLength 40
+npm run start:node -- complete models/tiny_llama_v1.bin \
+  --prompt "I have a dream" \
+  --maxSequenceLength 22
 ```
 
 Output:
 
 ```
-This is an example of a "fake" 19th century letter.
-The letter is dated 1840 and is signed by the author, "J. B. C."
+I have a dream that one day we will have a world where we can live in peace and harmony.
 ```
-
-## TinyStories Model Files
-
-The transformer model files located in the `models` directory were
-[trained](https://github.com/karpathy/llama2.c#models) on the TinyStories dataset by Andrej Karpathy
-for his implementation of Llama 2 in C. These files have been adapted into a binary data format
-specifically optimized for browser streaming. If interested, larger versions can be found
-[here](https://huggingface.co/clebert/tinystories). For more information on the binary data format,
-please refer to the documentation provided below.
 
 ## Model Binary Data Format
 
 ```
 +--------------------------+
-| HEADER (HYPERPARAMETERS) |
+| Model Config             |
 +--------------------------+
-| VOCAB ENTRY 0            |
+| Vocab Entry 0            |
 +--------------------------+
-| VOCAB ENTRY ..           |
+| Vocab Entry ..           |
 +--------------------------+
-| EMBEDDING 0              |
-+--------------------------+
-| EMBEDDING ..             |
-+--------------------------+
-| ATTENTION LAYER 0        |
-+--------------------------+
-| ATTENTION LAYER ..       |
-+--------------------------+
-| FNN LAYER 0              |
-+--------------------------+
-| FNN LAYER ..             |
-+--------------------------+
-| LINEAR LAYER             |
+| Checkpoint Data          |
 +--------------------------+
 ```
 
-**NOTE:** All `i32` and `f32` data types are in little-endian format and matrices are organized in a
-row-first order.
+### Model Config (`256` bytes)
 
-### Header (`256` bytes)
+| Element               | Size                         | Example |
+| --------------------- | ---------------------------- | ------- |
+| `version`             | `1` × `u8`                   | 2       |
+| `modelTypeByteLength` | `1` × `i32`                  | 5       |
+| `modelType`           | `modelTypeByteLength` × `u8` | llama   |
+| `hiddenSize`          | `1` × `i32`                  | 4096    |
+| `intermediateSize`    | `1` × `i32`                  | 11008   |
+| `maxSequenceLength`   | `1` × `i32`                  | 4096    |
+| `vocabSize`           | `1` × `i32`                  | 32000   |
+| `numLayers`           | `1` × `i32`                  | 32      |
+| `numQueryHeads`       | `1` × `i32`                  | 32      |
+| `numKeyValueHeads`    | `1` × `i32`                  | 32      |
+| `sharedOutputWeight`  | `1` × `u8`                   | 0       |
 
-| Element           | Type       | Example  |
-| ----------------- | ---------- | -------- |
-| dataFormatMagic   | `6` x `u8` | "llama2" |
-| dataFormatVersion | `1` x `u8` | 1        |
-
-#### Hyperparameters
-
-| Element            | Type        | Example |
-| ------------------ | ----------- | ------- |
-| embeddingSize      | `1` x `i32` | 4096    |
-| hiddenSize         | `1` x `i32` | 11008   |
-| keyValueSize       | `1` x `i32` | 4096    |
-| layerCount         | `1` x `i32` | 32      |
-| queryHeadCount     | `1` x `i32` | 32      |
-| vocabSize          | `1` x `i32` | 32000   |
-| maxSequenceLength  | `1` x `i32` | 4096    |
-| sharedOutputWeight | `1` x `u8`  | 0       |
+**Note:** `keyValueSize` = `numKeyValueHeads` × (`hiddenSize` ÷ `numQueryHeads`)
 
 ### Vocab Entry (`0` .. `vocabSize`)
 
-| Element         | Type                     | Example |
-| --------------- | ------------------------ | ------- |
-| score           | `1` x `f32`              | -10735  |
-| tokenByteLength | `1` x `i32`              | 5       |
-| token           | `tokenByteLength` x `u8` | "Hello" |
+| Element           | Size                     |
+| ----------------- | ------------------------ |
+| `score`           | `1` × `f32`              |
+| `tokenByteLength` | `1` × `i32`              |
+| `token`           | `tokenByteLength` × `u8` |
 
-### Embedding (`0` .. `vocabSize`)
+### Checkpoint Data (`version` = `1`)
 
-| Element         | Type                    |
-| --------------- | ----------------------- |
-| embeddingVector | `embeddingSize` x `f32` |
-
-### Attention Layer (`0` .. `layerCount`)
-
-| Element            | Type                                      |
-| ------------------ | ----------------------------------------- |
-| normWeightVector   | `embeddingSize` x `f32`                   |
-| queryWeightMatrix  | `embeddingSize` x `embeddingSize` x `f32` |
-| keyWeightMatrix    | `keyValueSize` x `embeddingSize` x `f32`  |
-| valueWeightMatrix  | `keyValueSize` x `embeddingSize` x `f32`  |
-| outputWeightMatrix | `embeddingSize` x `embeddingSize` x `f32` |
-
-### FNN Layer (`0` .. `layerCount`)
-
-| Element          | Type                                   |
-| ---------------- | -------------------------------------- |
-| normWeightVector | `embeddingSize` x `f32`                |
-| gateWeightMatrix | `hiddenSize` x `embeddingSize` x `f32` |
-| upWeightMatrix   | `hiddenSize` x `embeddingSize` x `f32` |
-| downWeightMatrix | `embeddingSize` x `hiddenSize` x `f32` |
-
-### Linear Layer
-
-| Element            | Type                                  | Note                           |
-| ------------------ | ------------------------------------- | ------------------------------ |
-| normWeightVector   | `embeddingSize` x `f32`               |                                |
-| outputWeightMatrix | `vocabSize` x `embeddingSize` x `f32` | if `sharedOutputWeight` == `0` |
+| Element                 | Size                                                    | Condition                  |
+| ----------------------- | ------------------------------------------------------- | -------------------------- |
+| `embeddingWeight`       | `vocabSize` × `hiddenSize` × `f32`                      |                            |
+| `attentionNormWeight`   | `numLayers` × `hiddenSize` × `f32`                      |                            |
+| `attentionQueryWeight`  | `numLayers` × `hiddenSize` × `hiddenSize` × `f32`       |                            |
+| `attentionKeyWeight`    | `numLayers` × `keyValueSize` × `hiddenSize` × `f32`     |                            |
+| `attentionValueWeight`  | `numLayers` × `keyValueSize` × `hiddenSize` × `f32`     |                            |
+| `attentionOutputWeight` | `numLayers` × `hiddenSize` × `hiddenSize` × `f32`       |                            |
+| `mlpNormWeight`         | `numLayers` × `hiddenSize` × `f32`                      |                            |
+| `mlpGateWeight`         | `numLayers` × `intermediateSize` × `hiddenSize` × `f32` |                            |
+| `mlpUpWeight`           | `numLayers` × `intermediateSize` × `hiddenSize` × `f32` |                            |
+| `mlpDownWeight`         | `numLayers` × `hiddenSize` × `intermediateSize` × `f32` |                            |
+| `linearNormWeight`      | `hiddenSize` × `f32`                                    |                            |
+| `linearOutputWeight`    | `vocabSize` × `hiddenSize` × `f32`                      | `sharedOutputWeight` = `0` |

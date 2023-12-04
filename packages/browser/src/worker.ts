@@ -1,67 +1,82 @@
 import { computeArgmax } from './compute_argmax.js';
 import { loadWasmModule } from './load_wasm_module.js';
-import { AdditionLayer, AttentionLayer, Decoder, FnnLayer, LinearLayer } from '@llama2/decoder';
-import { createDataSource, loadCheckpoint, loadHyperparams, loadVocab } from '@llama2/loader';
+import { Decoder, createCheckpoint } from '@llama2/decoder';
+import { createDataSource, loadCheckpoint, loadModelConfig, loadVocab } from '@llama2/loader';
 import { Tokenizer } from '@llama2/tokenizer';
 
 async function main(): Promise<void> {
-  AdditionLayer.wasmModule = await loadWasmModule(`addition_layer`);
-  AttentionLayer.wasmModule = await loadWasmModule(`attention_layer`);
-  FnnLayer.wasmModule = await loadWasmModule(`fnn_layer`);
-  LinearLayer.wasmModule = await loadWasmModule(`linear_layer`);
-
-  const response = await fetch(`/static/models/tinystories_15m.bin`);
+  const response = await fetch(`/static/models/tinystories_15m_v1.bin`);
   const reader = response.body!.getReader();
   const dataSource = createDataSource(reader);
 
   await dataSource.next();
 
-  const hyperparams = await loadHyperparams(dataSource);
+  const modelConfig = await loadModelConfig(dataSource);
 
-  console.log({ hyperparams });
+  console.log({ modelConfig });
 
-  const vocab = await loadVocab(dataSource, hyperparams.vocabSize);
-  const maxSequenceLength = hyperparams.maxSequenceLength;
-  const checkpoint = await loadCheckpoint(dataSource, hyperparams, { maxSequenceLength });
+  const vocab = await loadVocab(dataSource, modelConfig.vocabSize);
+
+  if (modelConfig.version !== 1 || modelConfig.modelType !== `llama`) {
+    return;
+  }
+
+  const checkpoint = await createCheckpoint(
+    {
+      attention: await loadWasmModule(`attention`),
+      mlpUp: await loadWasmModule(`mlp_up`),
+      mlpDown: await loadWasmModule(`mlp_down`),
+      linear: await loadWasmModule(`linear`),
+    },
+    modelConfig,
+  );
+
+  await loadCheckpoint(dataSource, modelConfig, checkpoint);
+
   const tokenizer = new Tokenizer(vocab);
-  const decoder = await Decoder.instantiate(hyperparams, checkpoint);
-  const tokenIds = [tokenizer.bosTokenId];
+  const decoder = new Decoder(modelConfig, checkpoint);
 
-  let totalTime = 0;
+  const run = () => {
+    const tokenIds = [tokenizer.bosTokenId];
 
-  while (tokenIds.length <= maxSequenceLength) {
-    const position = tokenIds.length - 1;
-    const tokenId = tokenIds[position]!;
+    let totalTime = 0;
 
-    let startTime = 0;
+    while (tokenIds.length <= modelConfig.maxSequenceLength) {
+      const position = tokenIds.length - 1;
+      const tokenId = tokenIds[position]!;
 
-    if (position > 0) {
-      startTime = performance.now();
+      let startTime = 0;
+
+      if (position > 0) {
+        startTime = performance.now();
+      }
+
+      const logits = decoder.forward(tokenId, position);
+
+      if (startTime > 0) {
+        totalTime += performance.now() - startTime;
+      }
+
+      const nextTokenId = computeArgmax(logits);
+      const nextToken = tokenizer.decode(nextTokenId, tokenId);
+
+      if (nextToken === undefined) {
+        break;
+      }
+
+      self.postMessage(nextToken);
+
+      tokenIds.push(nextTokenId);
     }
 
-    const logits = decoder.decode(tokenId, position);
+    if (tokenIds.length > 1) {
+      const averageTime = totalTime / (tokenIds.length - 1);
 
-    if (startTime > 0) {
-      totalTime += performance.now() - startTime;
+      console.log(`\n\nachieved: ${(1000 / averageTime).toFixed(3)} tok/s`);
     }
+  };
 
-    const nextTokenId = computeArgmax(logits);
-    const nextToken = tokenizer.decode(nextTokenId, tokenId);
-
-    if (nextToken === undefined) {
-      break;
-    }
-
-    self.postMessage(nextToken);
-
-    tokenIds.push(nextTokenId);
-  }
-
-  if (tokenIds.length > 1) {
-    const averageTime = totalTime / (tokenIds.length - 1);
-
-    console.log(`\n\nachieved: ${(1000 / averageTime).toFixed(3)} tok/s`);
-  }
+  run();
 }
 
 main().catch((error) => {

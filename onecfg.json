@@ -27,8 +27,8 @@
         "value": [
           "/.turbo",
           "/models/*",
-          "!/models/tinystories_15m.bin",
-          "!/models/tinystories_260k.bin",
+          "!/models/tinystories_15m_v1.bin",
+          "!/models/tinystories_260k_v1.bin",
           "/packages/*/dist",
           "/packages/*/lib",
           "*.tsbuildinfo"

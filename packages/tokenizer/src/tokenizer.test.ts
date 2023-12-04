@@ -2,14 +2,14 @@ import type { Vocab, VocabEntry } from '@llama2/loader';
 
 import { Tokenizer } from './tokenizer.js';
 import { beforeAll, expect, test } from '@jest/globals';
-import { createDataSource, loadHyperparams, loadVocab } from '@llama2/loader';
+import { createDataSource, loadModelConfig, loadVocab } from '@llama2/loader';
 import { open } from 'node:fs/promises';
 
 let vocab15m: Vocab;
 let vocab260k: Vocab;
 
 beforeAll(async () => {
-  const file15m = await open(`models/tinystories_15m.bin`);
+  const file15m = await open(`models/tinystories_15m_v1.bin`);
 
   const dataSource15m = createDataSource(
     file15m.readableWebStream().getReader() as ReadableStreamDefaultReader,
@@ -17,13 +17,13 @@ beforeAll(async () => {
 
   await dataSource15m.next();
 
-  const hyperparams15m = await loadHyperparams(dataSource15m);
+  const modelConfig15m = await loadModelConfig(dataSource15m);
 
-  vocab15m = await loadVocab(dataSource15m, hyperparams15m.vocabSize);
+  vocab15m = await loadVocab(dataSource15m, modelConfig15m.vocabSize);
 
   await dataSource15m.next(); // close stream
 
-  const file260k = await open(`models/tinystories_260k.bin`);
+  const file260k = await open(`models/tinystories_260k_v1.bin`);
 
   const dataSource260k = createDataSource(
     file260k.readableWebStream().getReader() as ReadableStreamDefaultReader,
@@ -31,9 +31,9 @@ beforeAll(async () => {
 
   await dataSource260k.next();
 
-  const hyperparams260k = await loadHyperparams(dataSource260k);
+  const modelConfig260k = await loadModelConfig(dataSource260k);
 
-  vocab260k = await loadVocab(dataSource260k, hyperparams260k.vocabSize);
+  vocab260k = await loadVocab(dataSource260k, modelConfig260k.vocabSize);
 
   await dataSource260k.next(); // close stream
 });

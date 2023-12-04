@@ -1,11 +1,11 @@
 import { createDataSource } from './create_data_source.js';
-import { loadHyperparams } from './load_hyperparams.js';
+import { loadModelConfig } from './load_model_config.js';
 import { loadVocab } from './load_vocab.js';
 import { expect, test } from '@jest/globals';
 import { open } from 'node:fs/promises';
 
 test(`tinystories 15m vocab`, async () => {
-  const file = await open(`models/tinystories_15m.bin`);
+  const file = await open(`models/tinystories_15m_v1.bin`);
 
   const dataSource = createDataSource(
     file.readableWebStream().getReader() as ReadableStreamDefaultReader,
@@ -13,9 +13,9 @@ test(`tinystories 15m vocab`, async () => {
 
   await dataSource.next();
 
-  const hyperparams = await loadHyperparams(dataSource);
+  const modelConfig = await loadModelConfig(dataSource);
 
-  const vocab = await loadVocab(dataSource, hyperparams.vocabSize);
+  const vocab = await loadVocab(dataSource, modelConfig.vocabSize);
 
   await dataSource.next(); // close stream
 

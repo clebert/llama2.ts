@@ -11,7 +11,7 @@ pub fn compute(weight_vector: []const f32, input_vector: []const f32, output_vec
     var scaling_factor = dot_product.compute(input_vector, input_vector);
 
     scaling_factor /= @floatFromInt(input_vector.len);
-    scaling_factor += 1e-5;
+    scaling_factor += 1e-05;
     scaling_factor = 1 / std.math.sqrt(scaling_factor);
 
     scalar_multiplication.compute(input_vector, scaling_factor, output_vector);

@@ -1,72 +1,44 @@
-import type { AttentionLayer } from './attention_layer.js';
-import type { FnnLayer } from './fnn_layer.js';
-import type { LinearLayer } from './linear_layer.js';
+import type { Checkpoint, ModelConfig } from './create_checkpoint.js';
 
-import { AdditionLayer } from './addition_layer.js';
-
-export interface Hyperparams {
-  readonly embeddingSize: number;
-  readonly hiddenSize: number;
-  readonly keyValueSize: number;
-  readonly layerCount: number;
-  readonly queryHeadCount: number;
-  readonly vocabSize: number;
-  readonly maxSequenceLength: number;
-  readonly sharedOutputWeight: boolean;
-}
-
-export interface Checkpoint {
-  readonly embeddingVectors: readonly Float32Array[];
-  readonly attentionLayers: readonly AttentionLayer[];
-  readonly fnnLayers: readonly FnnLayer[];
-  readonly linearLayer: LinearLayer;
+export interface ForwardOptions {
+  readonly computeSoftmax?: boolean;
 }
 
 export class Decoder {
-  static async instantiate(hyperparams: Hyperparams, checkpoint: Checkpoint): Promise<Decoder> {
-    return new Decoder(hyperparams, checkpoint, await AdditionLayer.instantiate(hyperparams));
-  }
+  constructor(
+    readonly modelConfig: ModelConfig,
+    readonly checkpoint: Checkpoint,
+  ) {}
 
-  readonly #hyperparams: Hyperparams;
-  readonly #checkpoint: Checkpoint;
-  readonly #additionLayer: AdditionLayer;
+  forward(tokenId: number, position: number, options?: ForwardOptions): Float32Array {
+    const { embeddingWeight, attention, mlpUp, mlpDown, linear } = this.checkpoint;
+    const hiddenVector = mlpDown.outputVector;
 
-  private constructor(
-    hyperparams: Hyperparams,
-    checkpoint: Checkpoint,
-    additionLayer: AdditionLayer,
-  ) {
-    this.#hyperparams = hyperparams;
-    this.#checkpoint = checkpoint;
-    this.#additionLayer = additionLayer;
-  }
+    hiddenVector.set(
+      new Float32Array(
+        embeddingWeight.buffer,
+        embeddingWeight.byteOffset + tokenId * hiddenVector.byteLength,
+        hiddenVector.length,
+      ),
+    );
 
-  decode(tokenId: number, position: number): Float32Array {
-    const hiddenVector = this.#additionLayer.outputVector;
+    for (let layer = 0; layer < this.modelConfig.numLayers; layer += 1) {
+      attention.inputVector.set(hiddenVector);
+      attention.forward(position, layer);
 
-    hiddenVector.set(this.#checkpoint.embeddingVectors[tokenId]!);
+      hiddenVector.set(attention.outputVector);
 
-    for (let index = 0; index < this.#hyperparams.layerCount; index += 1) {
-      const attentionLayer = this.#checkpoint.attentionLayers[index]!;
+      mlpUp.inputVector.set(hiddenVector);
+      mlpUp.forward(layer);
 
-      attentionLayer.inputVector.set(hiddenVector);
-      attentionLayer.forward(position);
-
-      this.#additionLayer.inputVector.set(attentionLayer.outputVector);
-      this.#additionLayer.forward();
-
-      const fnnLayer = this.#checkpoint.fnnLayers[index]!;
-
-      fnnLayer.inputVector.set(hiddenVector);
-      fnnLayer.forward();
-
-      this.#additionLayer.inputVector.set(fnnLayer.outputVector);
-      this.#additionLayer.forward();
+      mlpDown.inputVector.set(mlpUp.outputVector);
+      mlpDown.residualVector.set(hiddenVector);
+      mlpDown.forward(layer);
     }
 
-    this.#checkpoint.linearLayer.inputVector.set(hiddenVector);
-    this.#checkpoint.linearLayer.forward();
+    linear.inputVector.set(hiddenVector);
+    linear.forward(options?.computeSoftmax ?? false);
 
-    return this.#checkpoint.linearLayer.outputVector;
+    return linear.outputVector;
   }
 }
