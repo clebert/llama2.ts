@@ -101,7 +101,7 @@ I have a dream that one day we will have a world where we can live in peace and 
 +--------------------------+
 | Vocab Entry ..           |
 +--------------------------+
-| Checkpoint Data          |
+| Checkpoint               |
 +--------------------------+
 ```
 
@@ -131,7 +131,7 @@ I have a dream that one day we will have a world where we can live in peace and 
 | `tokenByteLength` | `1` × `i32`              |
 | `token`           | `tokenByteLength` × `u8` |
 
-### Checkpoint Data (`version` = `1`)
+### Checkpoint (`version` = `1`)
 
 | Element                 | Size                                                    | Condition                  |
 | ----------------------- | ------------------------------------------------------- | -------------------------- |

@@ -77,7 +77,7 @@ def write_model_file():
 
     output_file.write(b"\0" * (256 - output_file.tell()))
 
-    # Vocab Entries ################################################################################
+    # Vocab ########################################################################################
 
     spp = SentencePieceProcessor(
         model_file=os.path.join(args.input_model_path, "tokenizer.model")
@@ -93,7 +93,7 @@ def write_model_file():
         output_file.write(struct.pack("fi", score, len(token)))
         output_file.write(token)
 
-    # Checkpoint Data ##############################################################################
+    # Checkpoint ###################################################################################
 
     serialize_f32(output_file, embedding_weight)
 
