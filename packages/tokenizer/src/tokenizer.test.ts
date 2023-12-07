@@ -39,7 +39,7 @@ function createFakeVocab(...tokens: string[]): Vocab {
   const entriesByToken = new Map<string, VocabEntry>();
 
   tokens.forEach((token, tokenId) => {
-    const entry: VocabEntry = { tokenId, token, score: Math.random() };
+    const entry: VocabEntry = { score: Math.random(), token, tokenId };
 
     entriesByTokenId.push(entry);
     entriesByToken.set(entry.token, entry);

@@ -7,9 +7,9 @@ export interface Vocab {
 }
 
 export interface VocabEntry {
-  readonly tokenId: number;
-  readonly token: string;
   readonly score: number;
+  readonly token: string;
+  readonly tokenId: number;
 }
 
 export async function loadVocab(dataSource: DataSource, header: Header): Promise<Vocab> {
@@ -22,17 +22,20 @@ export async function loadVocab(dataSource: DataSource, header: Header): Promise
     await dataSource.next(scoreData);
 
     const score = scoreData[0]!;
-    const tokenLengthData = new Uint32Array(1);
+    const tokenByteLengthData = new Int32Array(1);
 
-    await dataSource.next(tokenLengthData);
+    await dataSource.next(tokenByteLengthData);
 
-    const tokenLength = tokenLengthData[0]!;
-    const tokenData = new Uint8Array(tokenLength);
+    const tokenByteLength = tokenByteLengthData[0]!;
+    const tokenData = new Uint8Array(tokenByteLength);
 
     await dataSource.next(tokenData);
 
-    const token = new TextDecoder().decode(tokenData).replaceAll(`▁`, ` `);
-    const entry: VocabEntry = { tokenId, token, score };
+    const token = new TextDecoder(`utf-8`, { ignoreBOM: true })
+      .decode(tokenData)
+      .replaceAll(`▁`, ` `);
+
+    const entry: VocabEntry = { score, token, tokenId };
 
     entriesByToken.set(token, entry);
     entriesByTokenId.push(entry);

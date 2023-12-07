@@ -10,16 +10,12 @@ export class Tokenizer {
   readonly bosTokenId = 1;
   readonly eosTokenId = 2;
 
-  readonly #vocab: Vocab;
-
-  constructor(vocab: Vocab) {
-    this.#vocab = vocab;
-
-    this.#assert(`<unk>`, this.unkTokenId);
-    this.#assert(`<s>`, this.bosTokenId);
-    this.#assert(`</s>`, this.eosTokenId);
-    this.#assert(`<0x00>`, 3);
-    this.#assert(`<0x01>`, 4);
+  constructor(private readonly vocab: Vocab) {
+    this.assert(`<unk>`, this.unkTokenId);
+    this.assert(`<s>`, this.bosTokenId);
+    this.assert(`</s>`, this.eosTokenId);
+    this.assert(`<0x00>`, 3);
+    this.assert(`<0x01>`, 4);
   }
 
   encode(input: string, options?: TokenizerEncodeOptions): number[] {
@@ -34,7 +30,7 @@ export class Tokenizer {
     }
 
     for (const token of [...` ${input}`]) {
-      const entry = this.#vocab.entriesByToken.get(token);
+      const entry = this.vocab.entriesByToken.get(token);
 
       if (entry) {
         tokenIds.push(entry.tokenId);
@@ -53,9 +49,9 @@ export class Tokenizer {
       let best: { readonly entry: VocabEntry; readonly index: number } | undefined;
 
       for (let index = 0; index < tokenIds.length - 1; index += 1) {
-        const entry1 = this.#vocab.entriesByTokenId[tokenIds[index]!]!;
-        const entry2 = this.#vocab.entriesByTokenId[tokenIds[index + 1]!]!;
-        const entry3 = this.#vocab.entriesByToken.get(entry1.token + entry2.token);
+        const entry1 = this.vocab.entriesByTokenId[tokenIds[index]!]!;
+        const entry2 = this.vocab.entriesByTokenId[tokenIds[index + 1]!]!;
+        const entry3 = this.vocab.entriesByToken.get(entry1.token + entry2.token);
 
         if (entry3 && (!best || entry3.score > best.entry.score)) {
           best = { entry: entry3, index };
@@ -79,13 +75,13 @@ export class Tokenizer {
       return undefined;
     }
 
-    const { token } = this.#vocab.entriesByTokenId[tokenId]!;
+    const { token } = this.vocab.entriesByTokenId[tokenId]!;
 
     return decodeHex(prevTokenId === this.bosTokenId && token[0] === ` ` ? token.slice(1) : token);
   }
 
-  #assert(expectedToken: string, tokenId: number): void {
-    const actualToken = this.#vocab.entriesByTokenId[tokenId]?.token;
+  private assert(expectedToken: string, tokenId: number): void {
+    const actualToken = this.vocab.entriesByTokenId[tokenId]?.token;
 
     if (expectedToken !== actualToken) {
       throw new Error(`unsupported vocab`);

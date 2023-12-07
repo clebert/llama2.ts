@@ -37,6 +37,7 @@ export async function complete({
   });
 
   await loadCheckpoint(dataSource, header, checkpoint);
+  await file.close();
 
   const decoder = new Decoder(modelConfig, checkpoint);
   const tokenizer = new Tokenizer(vocab);
