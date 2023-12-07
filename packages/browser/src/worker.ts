@@ -1,7 +1,7 @@
 import { computeArgmax } from './compute_argmax.js';
 import { loadWasmModule } from './load_wasm_module.js';
 import { Decoder, createCheckpoint } from '@llama2/decoder';
-import { createDataSource, loadCheckpoint, loadModelConfig, loadVocab } from '@llama2/loader';
+import { createDataSource, loadCheckpoint, loadHeader, loadVocab } from '@llama2/loader';
 import { Tokenizer } from '@llama2/tokenizer';
 
 async function main(): Promise<void> {
@@ -11,27 +11,20 @@ async function main(): Promise<void> {
 
   await dataSource.next();
 
-  const modelConfig = await loadModelConfig(dataSource);
+  const header = await loadHeader(dataSource);
+  const vocab = await loadVocab(dataSource, header);
+  const { modelConfig } = header;
 
   console.log({ modelConfig });
 
-  const vocab = await loadVocab(dataSource, modelConfig.vocabSize);
+  const checkpoint = await createCheckpoint(modelConfig, {
+    attention: await loadWasmModule(`attention`),
+    mlpUp: await loadWasmModule(`mlp_up`),
+    mlpDown: await loadWasmModule(`mlp_down`),
+    linear: await loadWasmModule(`linear`),
+  });
 
-  if (modelConfig.version !== 1 || modelConfig.modelType !== `llama`) {
-    return;
-  }
-
-  const checkpoint = await createCheckpoint(
-    {
-      attention: await loadWasmModule(`attention`),
-      mlpUp: await loadWasmModule(`mlp_up`),
-      mlpDown: await loadWasmModule(`mlp_down`),
-      linear: await loadWasmModule(`linear`),
-    },
-    modelConfig,
-  );
-
-  await loadCheckpoint(dataSource, modelConfig, checkpoint);
+  await loadCheckpoint(dataSource, header, checkpoint);
 
   const tokenizer = new Tokenizer(vocab);
   const decoder = new Decoder(modelConfig, checkpoint);

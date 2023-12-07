@@ -6,8 +6,8 @@ export interface ForwardOptions {
 
 export class Decoder {
   constructor(
-    readonly modelConfig: ModelConfig,
-    readonly checkpoint: Checkpoint,
+    private readonly modelConfig: ModelConfig,
+    private readonly checkpoint: Checkpoint,
   ) {}
 
   forward(tokenId: number, position: number, options?: ForwardOptions): Float32Array {

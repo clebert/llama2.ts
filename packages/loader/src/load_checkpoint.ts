@@ -1,12 +1,12 @@
 import type { DataSource } from './create_data_source.js';
-import type { Checkpoint, ModelConfig } from '@llama2/decoder';
+import type { Header } from './load_header.js';
+import type { Checkpoint } from '@llama2/decoder';
 
 export async function loadCheckpoint(
   dataSource: DataSource,
-  modelConfig: ModelConfig,
+  header: Header,
   checkpoint: Checkpoint,
 ): Promise<void> {
-  const { sharedOutputWeight } = modelConfig;
   const { embeddingWeight, attention, mlpUp, mlpDown, linear } = checkpoint;
 
   await dataSource.next(checkpoint.embeddingWeight);
@@ -24,7 +24,7 @@ export async function loadCheckpoint(
 
   await dataSource.next(linear.normWeight);
 
-  if (sharedOutputWeight) {
+  if (header.sharedOutputWeight) {
     linear.outputWeight.set(embeddingWeight);
   } else {
     await dataSource.next(linear.outputWeight);

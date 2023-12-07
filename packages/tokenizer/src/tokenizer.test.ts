@@ -2,7 +2,7 @@ import type { Vocab, VocabEntry } from '@llama2/loader';
 
 import { Tokenizer } from './tokenizer.js';
 import { beforeAll, expect, test } from '@jest/globals';
-import { createDataSource, loadModelConfig, loadVocab } from '@llama2/loader';
+import { createDataSource, loadHeader, loadVocab } from '@llama2/loader';
 import { open } from 'node:fs/promises';
 
 let vocab15m: Vocab;
@@ -17,9 +17,7 @@ beforeAll(async () => {
 
   await dataSource15m.next();
 
-  const modelConfig15m = await loadModelConfig(dataSource15m);
-
-  vocab15m = await loadVocab(dataSource15m, modelConfig15m.vocabSize);
+  vocab15m = await loadVocab(dataSource15m, await loadHeader(dataSource15m));
 
   await dataSource15m.next(); // close stream
 
@@ -31,9 +29,7 @@ beforeAll(async () => {
 
   await dataSource260k.next();
 
-  const modelConfig260k = await loadModelConfig(dataSource260k);
-
-  vocab260k = await loadVocab(dataSource260k, modelConfig260k.vocabSize);
+  vocab260k = await loadVocab(dataSource260k, await loadHeader(dataSource260k));
 
   await dataSource260k.next(); // close stream
 });
@@ -53,24 +49,16 @@ function createFakeVocab(...tokens: string[]): Vocab {
 }
 
 test(`unsupported vocab`, () => {
-  expect(() => new Tokenizer(createFakeVocab(`foo`))).toThrow(
-    `Unsupported vocab detected. Expected '<unk>' at position 0 but found 'foo' instead.`,
-  );
-
-  expect(() => new Tokenizer(createFakeVocab(`<unk>`, `foo`))).toThrow(
-    `Unsupported vocab detected. Expected '<s>' at position 1 but found 'foo' instead.`,
-  );
-
-  expect(() => new Tokenizer(createFakeVocab(`<unk>`, `<s>`, `foo`))).toThrow(
-    `Unsupported vocab detected. Expected '</s>' at position 2 but found 'foo' instead.`,
-  );
+  expect(() => new Tokenizer(createFakeVocab(`foo`))).toThrow(`unsupported vocab`);
+  expect(() => new Tokenizer(createFakeVocab(`<unk>`, `foo`))).toThrow(`unsupported vocab`);
+  expect(() => new Tokenizer(createFakeVocab(`<unk>`, `<s>`, `foo`))).toThrow(`unsupported vocab`);
 
   expect(() => new Tokenizer(createFakeVocab(`<unk>`, `<s>`, `</s>`, `foo`))).toThrow(
-    `Unsupported vocab detected. Expected '<0x00>' at position 3 but found 'foo' instead.`,
+    `unsupported vocab`,
   );
 
   expect(() => new Tokenizer(createFakeVocab(`<unk>`, `<s>`, `</s>`, `<0x00>`, `foo`))).toThrow(
-    `Unsupported vocab detected. Expected '<0x01>' at position 4 but found 'foo' instead.`,
+    `unsupported vocab`,
   );
 });
 

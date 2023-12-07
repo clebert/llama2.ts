@@ -88,9 +88,7 @@ export class Tokenizer {
     const actualToken = this.#vocab.entriesByTokenId[tokenId]?.token;
 
     if (expectedToken !== actualToken) {
-      throw new Error(
-        `Unsupported vocab detected. Expected '${expectedToken}' at position ${tokenId} but found '${actualToken}' instead.`,
-      );
+      throw new Error(`unsupported vocab`);
     }
   }
 }

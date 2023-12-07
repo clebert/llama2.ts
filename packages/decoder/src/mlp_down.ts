@@ -11,8 +11,8 @@ export class MlpDown {
   private readonly self: number;
 
   constructor(
-    private readonly wasmInstance: WebAssembly.Instance,
     modelConfig: ModelConfig,
+    private readonly wasmInstance: WebAssembly.Instance,
   ) {
     const exports = wasmInstance.exports as any as Exports;
     const { hiddenSize: outputSize, intermediateSize: inputSize, numLayers } = modelConfig;

@@ -86,7 +86,7 @@ npm run start:node -- complete models/tiny_llama_v1.bin --prompt "The number 42 
 
 ```
 +--------------------------+
-| Model Config             |
+| Header                   |
 +--------------------------+
 | Vocab Entry 0            |
 +--------------------------+
@@ -96,7 +96,7 @@ npm run start:node -- complete models/tiny_llama_v1.bin --prompt "The number 42 
 +--------------------------+
 ```
 
-### Model Config (`256` bytes)
+### Header (`256` bytes)
 
 | Element               | Size                         | Example |
 | --------------------- | ---------------------------- | ------- |

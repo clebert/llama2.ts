@@ -11,8 +11,6 @@ export interface WasmModules {
 }
 
 export interface ModelConfig {
-  readonly version: 1;
-  readonly modelType: 'llama';
   readonly hiddenSize: number;
   readonly intermediateSize: number;
   readonly maxSequenceLength: number;
@@ -20,7 +18,6 @@ export interface ModelConfig {
   readonly numLayers: number;
   readonly numQueryHeads: number;
   readonly numKeyValueHeads: number;
-  readonly sharedOutputWeight: boolean;
 }
 
 export interface Checkpoint {
@@ -32,14 +29,14 @@ export interface Checkpoint {
 }
 
 export async function createCheckpoint(
-  wasmModules: WasmModules,
   modelConfig: ModelConfig,
+  wasmModules: WasmModules,
 ): Promise<Checkpoint> {
   return {
     embeddingWeight: new Uint8Array(modelConfig.vocabSize * modelConfig.hiddenSize * 4),
-    attention: new Attention(await WebAssembly.instantiate(wasmModules.attention), modelConfig),
-    mlpUp: new MlpUp(await WebAssembly.instantiate(wasmModules.mlpUp), modelConfig),
-    mlpDown: new MlpDown(await WebAssembly.instantiate(wasmModules.mlpDown), modelConfig),
-    linear: new Linear(await WebAssembly.instantiate(wasmModules.linear), modelConfig),
+    attention: new Attention(modelConfig, await WebAssembly.instantiate(wasmModules.attention)),
+    mlpUp: new MlpUp(modelConfig, await WebAssembly.instantiate(wasmModules.mlpUp)),
+    mlpDown: new MlpDown(modelConfig, await WebAssembly.instantiate(wasmModules.mlpDown)),
+    linear: new Linear(modelConfig, await WebAssembly.instantiate(wasmModules.linear)),
   };
 }

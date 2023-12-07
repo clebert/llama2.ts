@@ -54,7 +54,7 @@ def write_model_file():
 
     output_file = open(args.output_model_path, "wb")
 
-    # Model Config #################################################################################
+    # Header #######################################################################################
 
     output_file.write(struct.pack("B", 1))
     output_file.write(struct.pack("i", 5))

@@ -1,7 +1,7 @@
 import { computeArgmax } from './compute_argmax.js';
 import { loadWasmModule } from './load_wasm_module.js';
 import { Decoder, createCheckpoint } from '@llama2/decoder';
-import { createDataSource, loadCheckpoint, loadModelConfig, loadVocab } from '@llama2/loader';
+import { createDataSource, loadCheckpoint, loadHeader, loadVocab } from '@llama2/loader';
 import { Tokenizer } from '@llama2/tokenizer';
 import { open } from 'node:fs/promises';
 import { stdout } from 'process';
@@ -25,59 +25,53 @@ export async function complete({
 
   await dataSource.next();
 
-  let modelConfig = await loadModelConfig(dataSource);
+  const header = await loadHeader(dataSource);
+  const vocab = await loadVocab(dataSource, header);
+  const { modelConfig } = header;
 
-  if (maxSequenceLength) {
-    modelConfig = { ...modelConfig, maxSequenceLength };
-  }
+  const checkpoint = await createCheckpoint(modelConfig, {
+    attention: await loadWasmModule(`attention`),
+    mlpUp: await loadWasmModule(`mlp_up`),
+    mlpDown: await loadWasmModule(`mlp_down`),
+    linear: await loadWasmModule(`linear`),
+  });
 
-  const vocab = await loadVocab(dataSource, modelConfig.vocabSize);
+  await loadCheckpoint(dataSource, header, checkpoint);
 
-  if (modelConfig.version === 1 && modelConfig.modelType === `llama`) {
-    const checkpoint = await createCheckpoint(
-      {
-        attention: await loadWasmModule(`attention`),
-        mlpUp: await loadWasmModule(`mlp_up`),
-        mlpDown: await loadWasmModule(`mlp_down`),
-        linear: await loadWasmModule(`linear`),
-      },
-      modelConfig,
-    );
+  const decoder = new Decoder(modelConfig, checkpoint);
+  const tokenizer = new Tokenizer(vocab);
+  const promptTokenIds = tokenizer.encode(prompt, { bos: true });
 
-    await loadCheckpoint(dataSource, modelConfig, checkpoint);
+  let nextTokenId = promptTokenIds.shift() ?? tokenizer.bosTokenId;
+  let totalTime = 0;
+  let numTokens = 0;
 
-    const decoder = new Decoder(modelConfig, checkpoint);
-    const tokenizer = new Tokenizer(vocab);
-    const promptTokenIds = tokenizer.encode(prompt, { bos: true });
+  for (
+    let position = 0;
+    position < (maxSequenceLength ?? modelConfig.maxSequenceLength);
+    position += 1
+  ) {
+    const tokenId = nextTokenId;
+    const startTime = performance.now();
+    const logits = decoder.forward(tokenId, position);
 
-    let nextTokenId = promptTokenIds.shift() ?? tokenizer.bosTokenId;
+    totalTime += performance.now() - startTime;
+    nextTokenId = promptTokenIds.shift() ?? computeArgmax(logits);
 
-    let totalTime = 0;
-    let numTokens = 0;
+    const nextToken = tokenizer.decode(nextTokenId, tokenId);
 
-    for (let position = 0; position < modelConfig.maxSequenceLength; position += 1) {
-      const tokenId = nextTokenId;
-      const startTime = performance.now();
-      const logits = decoder.forward(tokenId, position);
+    numTokens += 1;
 
-      totalTime += performance.now() - startTime;
-      nextTokenId = promptTokenIds.shift() ?? computeArgmax(logits);
-
-      const nextToken = tokenizer.decode(nextTokenId, tokenId);
-
-      numTokens += 1;
-
-      if (nextToken === undefined) {
-        break;
-      }
-
-      stdout.write(nextToken);
+    if (nextToken === undefined) {
+      break;
     }
 
-    stdout.write(`\n`);
-
-    const averageTime = totalTime / numTokens;
-
-    console.log(`\n\nachieved: ${(1000 / averageTime).toFixed(3)} tok/s`);
+    stdout.write(nextToken);
   }
+
+  stdout.write(`\n`);
+
+  const averageTime = totalTime / numTokens;
+
+  console.log(`\n\nachieved: ${(1000 / averageTime).toFixed(3)} tok/s`);
 }
