@@ -2,7 +2,7 @@ import type { Vocab, VocabEntry } from '@llama2/loader';
 
 import { Tokenizer } from './tokenizer.js';
 import { beforeAll, expect, test } from '@jest/globals';
-import { createDataSource, loadHeader, loadVocab } from '@llama2/loader';
+import { createDataSource, loadModelConfig, loadVocab } from '@llama2/loader';
 import { open } from 'node:fs/promises';
 
 let vocab15m: Vocab;
@@ -17,7 +17,7 @@ beforeAll(async () => {
 
   await dataSource15m.next();
 
-  vocab15m = await loadVocab(dataSource15m, await loadHeader(dataSource15m));
+  vocab15m = await loadVocab(dataSource15m, await loadModelConfig(dataSource15m));
 
   await dataSource15m.next(); // close stream
 
@@ -29,7 +29,7 @@ beforeAll(async () => {
 
   await dataSource260k.next();
 
-  vocab260k = await loadVocab(dataSource260k, await loadHeader(dataSource260k));
+  vocab260k = await loadVocab(dataSource260k, await loadModelConfig(dataSource260k));
 
   await dataSource260k.next(); // close stream
 });

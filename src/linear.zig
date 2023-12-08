@@ -45,11 +45,11 @@ export fn getOutputVector(self: *const Self) [*]f32 {
     return self.output_vector.ptr;
 }
 
-export fn forward(self: *const Self, compute_softmax: bool) void {
+export fn forward(self: *const Self) void {
     rms_norm.compute(self.norm_weight, self.input_vector, self.norm_vector);
     matrix_vector_product.compute(self.output_weight, self.norm_vector, self.output_vector);
+}
 
-    if (compute_softmax) {
-        softmax.compute(self.output_vector, self.output_vector);
-    }
+export fn computeSoftmax(self: *const Self) void {
+    softmax.compute(self.output_vector, self.output_vector);
 }

@@ -1,8 +1,14 @@
-import type { ModelConfig } from './create_checkpoint.js';
-
 import { checkNotNull } from './check_not_null.js';
 
+export interface MlpUpInit {
+  readonly inputSize: number;
+  readonly outputSize: number;
+  readonly numLayers: number;
+}
+
 export class MlpUp {
+  static wasmSingleton: WebAssembly.Instance;
+
   readonly normWeight: Uint8Array;
   readonly gateWeight: Uint8Array;
   readonly upWeight: Uint8Array;
@@ -11,52 +17,58 @@ export class MlpUp {
 
   private readonly self: number;
 
-  constructor(
-    modelConfig: ModelConfig,
-    private readonly wasmInstance: WebAssembly.Instance,
-  ) {
-    const exports = wasmInstance.exports as any as Exports;
-    const { hiddenSize: inputSize, intermediateSize: outputSize, numLayers } = modelConfig;
+  constructor({ inputSize, outputSize, numLayers }: MlpUpInit) {
+    const {
+      memory,
+      create,
+      getNormWeight,
+      getGateWeight,
+      getUpWeight,
+      getInputVector,
+      getOutputVector,
+    } = MlpUp.wasmSingleton.exports as WasmExports;
 
-    this.self = exports.create(inputSize, outputSize, numLayers);
+    this.self = create(inputSize, outputSize, numLayers);
 
     this.normWeight = new Uint8Array(
-      exports.memory.buffer,
-      checkNotNull(exports.getNormWeight(this.self)),
+      memory.buffer,
+      checkNotNull(getNormWeight(this.self)),
       numLayers * inputSize * 4,
     );
 
     this.gateWeight = new Uint8Array(
-      exports.memory.buffer,
-      checkNotNull(exports.getGateWeight(this.self)),
+      memory.buffer,
+      checkNotNull(getGateWeight(this.self)),
       numLayers * outputSize * inputSize * 4,
     );
 
     this.upWeight = new Uint8Array(
-      exports.memory.buffer,
-      checkNotNull(exports.getUpWeight(this.self)),
+      memory.buffer,
+      checkNotNull(getUpWeight(this.self)),
       numLayers * outputSize * inputSize * 4,
     );
 
     this.inputVector = new Float32Array(
-      exports.memory.buffer,
-      checkNotNull(exports.getInputVector(this.self)),
+      memory.buffer,
+      checkNotNull(getInputVector(this.self)),
       inputSize,
     );
 
     this.outputVector = new Float32Array(
-      exports.memory.buffer,
-      checkNotNull(exports.getOutputVector(this.self)),
+      memory.buffer,
+      checkNotNull(getOutputVector(this.self)),
       outputSize,
     );
   }
 
-  forward(layer: number): void {
-    (this.wasmInstance.exports as any as Exports).forward(this.self, layer);
+  forward({ layer }: Readonly<{ layer: number }>): void {
+    const { forward } = MlpUp.wasmSingleton.exports as WasmExports;
+
+    forward(this.self, layer);
   }
 }
 
-interface Exports {
+interface WasmExports extends WebAssembly.Exports {
   readonly memory: WebAssembly.Memory;
 
   create(inputSize: number, outputSize: number, numLayers: number): number;

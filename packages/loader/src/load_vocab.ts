@@ -1,5 +1,5 @@
 import type { DataSource } from './create_data_source.js';
-import type { Header } from './load_header.js';
+import type { ModelConfig } from './load_model_config.js';
 
 export interface Vocab {
   readonly entriesByToken: Map<string, VocabEntry>;
@@ -12,11 +12,11 @@ export interface VocabEntry {
   readonly tokenId: number;
 }
 
-export async function loadVocab(dataSource: DataSource, header: Header): Promise<Vocab> {
+export async function loadVocab(dataSource: DataSource, modelConfig: ModelConfig): Promise<Vocab> {
   const entriesByToken = new Map<string, VocabEntry>();
   const entriesByTokenId: VocabEntry[] = [];
 
-  for (let tokenId = 0; tokenId < header.modelConfig.vocabSize; tokenId += 1) {
+  for (let tokenId = 0; tokenId < modelConfig.vocabSize; tokenId += 1) {
     const scoreData = new Float32Array(1);
 
     await dataSource.next(scoreData);

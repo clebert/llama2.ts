@@ -1,8 +1,13 @@
-import type { ModelConfig } from './create_checkpoint.js';
-
 import { checkNotNull } from './check_not_null.js';
 
+export interface LinearInit {
+  readonly inputSize: number;
+  readonly outputSize: number;
+}
+
 export class Linear {
+  static wasmSingleton: WebAssembly.Instance;
+
   readonly normWeight: Uint8Array;
   readonly outputWeight: Uint8Array;
   readonly inputVector: Float32Array;
@@ -10,46 +15,51 @@ export class Linear {
 
   private readonly self: number;
 
-  constructor(
-    modelConfig: ModelConfig,
-    private readonly wasmInstance: WebAssembly.Instance,
-  ) {
-    const exports = wasmInstance.exports as any as Exports;
-    const { hiddenSize, vocabSize } = modelConfig;
+  constructor({ inputSize, outputSize }: LinearInit) {
+    const { memory, create, getNormWeight, getOutputWeight, getInputVector, getOutputVector } =
+      Linear.wasmSingleton.exports as WasmExports;
 
-    this.self = exports.create(hiddenSize, vocabSize);
+    this.self = create(inputSize, outputSize);
 
     this.normWeight = new Uint8Array(
-      exports.memory.buffer,
-      checkNotNull(exports.getNormWeight(this.self)),
-      hiddenSize * 4,
+      memory.buffer,
+      checkNotNull(getNormWeight(this.self)),
+      inputSize * 4,
     );
 
     this.outputWeight = new Uint8Array(
-      exports.memory.buffer,
-      checkNotNull(exports.getOutputWeight(this.self)),
-      vocabSize * hiddenSize * 4,
+      memory.buffer,
+      checkNotNull(getOutputWeight(this.self)),
+      outputSize * inputSize * 4,
     );
 
     this.inputVector = new Float32Array(
-      exports.memory.buffer,
-      checkNotNull(exports.getInputVector(this.self)),
-      hiddenSize,
+      memory.buffer,
+      checkNotNull(getInputVector(this.self)),
+      inputSize,
     );
 
     this.outputVector = new Float32Array(
-      exports.memory.buffer,
-      checkNotNull(exports.getOutputVector(this.self)),
-      vocabSize,
+      memory.buffer,
+      checkNotNull(getOutputVector(this.self)),
+      outputSize,
     );
   }
 
-  forward(computeSoftmax: boolean): void {
-    (this.wasmInstance.exports as any as Exports).forward(this.self, computeSoftmax);
+  forward(): void {
+    const { forward } = Linear.wasmSingleton.exports as WasmExports;
+
+    forward(this.self);
+  }
+
+  computeSoftmax(): void {
+    const { computeSoftmax } = Linear.wasmSingleton.exports as WasmExports;
+
+    computeSoftmax(this.self);
   }
 }
 
-interface Exports {
+interface WasmExports extends WebAssembly.Exports {
   readonly memory: WebAssembly.Memory;
 
   create(inputSize: number, outputSize: number): number;
@@ -57,5 +67,6 @@ interface Exports {
   getOutputWeight(self: number): number;
   getInputVector(self: number): number;
   getOutputVector(self: number): number;
-  forward(self: number, computeSoftmax: boolean): void;
+  forward(self: number): void;
+  computeSoftmax(self: number): void;
 }

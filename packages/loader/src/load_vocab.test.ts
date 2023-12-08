@@ -1,5 +1,5 @@
 import { createDataSource } from './create_data_source.js';
-import { loadHeader } from './load_header.js';
+import { loadModelConfig } from './load_model_config.js';
 import { loadVocab } from './load_vocab.js';
 import { expect, test } from '@jest/globals';
 import { open } from 'node:fs/promises';
@@ -13,7 +13,7 @@ test(`tinystories 15m vocab`, async () => {
 
   await dataSource.next();
 
-  const vocab = await loadVocab(dataSource, await loadHeader(dataSource));
+  const vocab = await loadVocab(dataSource, await loadModelConfig(dataSource));
 
   await dataSource.next(); // close stream
 

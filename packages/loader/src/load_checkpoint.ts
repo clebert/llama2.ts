@@ -1,15 +1,35 @@
 import type { DataSource } from './create_data_source.js';
-import type { Header } from './load_header.js';
+import type { ModelConfig } from './load_model_config.js';
 import type { Checkpoint } from '@llama2/decoder';
+
+import { Attention, Linear, MlpDown, MlpUp } from '@llama2/decoder';
 
 export async function loadCheckpoint(
   dataSource: DataSource,
-  header: Header,
-  checkpoint: Checkpoint,
-): Promise<void> {
-  const { embeddingWeight, attention, mlpUp, mlpDown, linear } = checkpoint;
+  modelConfig: ModelConfig,
+): Promise<Checkpoint> {
+  const {
+    hiddenSize,
+    intermediateSize,
+    maxSequenceLength,
+    vocabSize,
+    numLayers,
+    numQueryHeads,
+    numKeyValueHeads,
+    sharedOutputWeight,
+  } = modelConfig;
 
-  await dataSource.next(checkpoint.embeddingWeight);
+  const embeddingWeight = new Uint8Array(vocabSize * hiddenSize * 4);
+
+  await dataSource.next(embeddingWeight);
+
+  const attention = new Attention({
+    querySize: hiddenSize,
+    maxSequenceLength,
+    numLayers,
+    numQueryHeads,
+    numKeyValueHeads,
+  });
 
   await dataSource.next(attention.normWeight);
   await dataSource.next(attention.queryWeight);
@@ -17,16 +37,25 @@ export async function loadCheckpoint(
   await dataSource.next(attention.valueWeight);
   await dataSource.next(attention.outputWeight);
 
+  const mlpUp = new MlpUp({ inputSize: hiddenSize, outputSize: intermediateSize, numLayers });
+
   await dataSource.next(mlpUp.normWeight);
   await dataSource.next(mlpUp.gateWeight);
   await dataSource.next(mlpUp.upWeight);
+
+  const mlpDown = new MlpDown({ inputSize: intermediateSize, outputSize: hiddenSize, numLayers });
+
   await dataSource.next(mlpDown.downWeight);
+
+  const linear = new Linear({ inputSize: hiddenSize, outputSize: vocabSize });
 
   await dataSource.next(linear.normWeight);
 
-  if (header.sharedOutputWeight) {
+  if (sharedOutputWeight) {
     linear.outputWeight.set(embeddingWeight);
   } else {
     await dataSource.next(linear.outputWeight);
   }
+
+  return { embeddingWeight, attention, mlpUp, mlpDown, linear };
 }
