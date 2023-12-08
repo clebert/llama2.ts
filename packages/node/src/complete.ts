@@ -17,10 +17,10 @@ export async function complete({
   prompt = ``,
   maxSequenceLength,
 }: CompleteArgs): Promise<void> {
-  Attention.wasmSingleton = await WebAssembly.instantiate(await loadWasmModule(`attention`));
-  Linear.wasmSingleton = await WebAssembly.instantiate(await loadWasmModule(`linear`));
-  MlpDown.wasmSingleton = await WebAssembly.instantiate(await loadWasmModule(`mlp_down`));
-  MlpUp.wasmSingleton = await WebAssembly.instantiate(await loadWasmModule(`mlp_up`));
+  Attention.wasmModule = await loadWasmModule(`attention`);
+  Linear.wasmModule = await loadWasmModule(`linear`);
+  MlpDown.wasmModule = await loadWasmModule(`mlp_down`);
+  MlpUp.wasmModule = await loadWasmModule(`mlp_up`);
 
   const file = await open(modelPath);
 

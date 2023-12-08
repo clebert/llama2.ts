@@ -7,7 +7,11 @@ export interface MlpDownInit {
 }
 
 export class MlpDown {
-  static wasmSingleton: WebAssembly.Instance;
+  static wasmModule: WebAssembly.Module;
+
+  static async create(init: MlpDownInit): Promise<MlpDown> {
+    return new MlpDown(init, await WebAssembly.instantiate(this.wasmModule));
+  }
 
   readonly downWeight: Uint8Array;
   readonly inputVector: Float32Array;
@@ -16,9 +20,12 @@ export class MlpDown {
 
   private readonly self: number;
 
-  constructor({ inputSize, outputSize, numLayers }: MlpDownInit) {
+  constructor(
+    { inputSize, outputSize, numLayers }: MlpDownInit,
+    private readonly wasmInstance: WebAssembly.Instance,
+  ) {
     const { memory, create, getDownWeight, getInputVector, getOutputVector, getResidualVector } =
-      MlpDown.wasmSingleton.exports as WasmExports;
+      wasmInstance.exports as WasmExports;
 
     this.self = create(inputSize, outputSize, numLayers);
 
@@ -48,9 +55,7 @@ export class MlpDown {
   }
 
   forward({ layer }: Readonly<{ layer: number }>): void {
-    const { forward } = MlpDown.wasmSingleton.exports as WasmExports;
-
-    forward(this.self, layer);
+    (this.wasmInstance.exports as WasmExports).forward(this.self, layer);
   }
 }
 

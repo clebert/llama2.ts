@@ -7,7 +7,11 @@ export interface MlpUpInit {
 }
 
 export class MlpUp {
-  static wasmSingleton: WebAssembly.Instance;
+  static wasmModule: WebAssembly.Module;
+
+  static async create(init: MlpUpInit): Promise<MlpUp> {
+    return new MlpUp(init, await WebAssembly.instantiate(this.wasmModule));
+  }
 
   readonly normWeight: Uint8Array;
   readonly gateWeight: Uint8Array;
@@ -17,7 +21,10 @@ export class MlpUp {
 
   private readonly self: number;
 
-  constructor({ inputSize, outputSize, numLayers }: MlpUpInit) {
+  constructor(
+    { inputSize, outputSize, numLayers }: MlpUpInit,
+    private readonly wasmInstance: WebAssembly.Instance,
+  ) {
     const {
       memory,
       create,
@@ -26,7 +33,7 @@ export class MlpUp {
       getUpWeight,
       getInputVector,
       getOutputVector,
-    } = MlpUp.wasmSingleton.exports as WasmExports;
+    } = wasmInstance.exports as WasmExports;
 
     this.self = create(inputSize, outputSize, numLayers);
 
@@ -62,9 +69,7 @@ export class MlpUp {
   }
 
   forward({ layer }: Readonly<{ layer: number }>): void {
-    const { forward } = MlpUp.wasmSingleton.exports as WasmExports;
-
-    forward(this.self, layer);
+    (this.wasmInstance.exports as WasmExports).forward(this.self, layer);
   }
 }
 

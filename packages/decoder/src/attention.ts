@@ -9,7 +9,11 @@ export interface AttentionInit {
 }
 
 export class Attention {
-  static wasmSingleton: WebAssembly.Instance;
+  static wasmModule: WebAssembly.Module;
+
+  static async create(init: AttentionInit): Promise<Attention> {
+    return new Attention(init, await WebAssembly.instantiate(this.wasmModule));
+  }
 
   readonly normWeight: Uint8Array;
   readonly queryWeight: Uint8Array;
@@ -21,13 +25,10 @@ export class Attention {
 
   private readonly self: number;
 
-  constructor({
-    querySize,
-    maxSequenceLength,
-    numLayers,
-    numQueryHeads,
-    numKeyValueHeads,
-  }: AttentionInit) {
+  private constructor(
+    { querySize, maxSequenceLength, numLayers, numQueryHeads, numKeyValueHeads }: AttentionInit,
+    private readonly wasmInstance: WebAssembly.Instance,
+  ) {
     const {
       memory,
       create,
@@ -38,7 +39,7 @@ export class Attention {
       getOutputWeight,
       getInputVector,
       getOutputVector,
-    } = Attention.wasmSingleton.exports as WasmExports;
+    } = wasmInstance.exports as WasmExports;
 
     this.self = create(querySize, maxSequenceLength, numLayers, numQueryHeads, numKeyValueHeads);
 
@@ -88,9 +89,7 @@ export class Attention {
   }
 
   forward({ position, layer }: Readonly<{ position: number; layer: number }>): void {
-    const { forward } = Attention.wasmSingleton.exports as WasmExports;
-
-    forward(this.self, position, layer);
+    (this.wasmInstance.exports as WasmExports).forward(this.self, position, layer);
   }
 }
 

@@ -23,7 +23,7 @@ export async function loadCheckpoint(
 
   await dataSource.next(embeddingWeight);
 
-  const attention = new Attention({
+  const attention = await Attention.create({
     querySize: hiddenSize,
     maxSequenceLength,
     numLayers,
@@ -37,17 +37,25 @@ export async function loadCheckpoint(
   await dataSource.next(attention.valueWeight);
   await dataSource.next(attention.outputWeight);
 
-  const mlpUp = new MlpUp({ inputSize: hiddenSize, outputSize: intermediateSize, numLayers });
+  const mlpUp = await MlpUp.create({
+    inputSize: hiddenSize,
+    outputSize: intermediateSize,
+    numLayers,
+  });
 
   await dataSource.next(mlpUp.normWeight);
   await dataSource.next(mlpUp.gateWeight);
   await dataSource.next(mlpUp.upWeight);
 
-  const mlpDown = new MlpDown({ inputSize: intermediateSize, outputSize: hiddenSize, numLayers });
+  const mlpDown = await MlpDown.create({
+    inputSize: intermediateSize,
+    outputSize: hiddenSize,
+    numLayers,
+  });
 
   await dataSource.next(mlpDown.downWeight);
 
-  const linear = new Linear({ inputSize: hiddenSize, outputSize: vocabSize });
+  const linear = await Linear.create({ inputSize: hiddenSize, outputSize: vocabSize });
 
   await dataSource.next(linear.normWeight);
 

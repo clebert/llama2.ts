@@ -6,7 +6,11 @@ export interface LinearInit {
 }
 
 export class Linear {
-  static wasmSingleton: WebAssembly.Instance;
+  static wasmModule: WebAssembly.Module;
+
+  static async create(init: LinearInit): Promise<Linear> {
+    return new Linear(init, await WebAssembly.instantiate(this.wasmModule));
+  }
 
   readonly normWeight: Uint8Array;
   readonly outputWeight: Uint8Array;
@@ -15,9 +19,12 @@ export class Linear {
 
   private readonly self: number;
 
-  constructor({ inputSize, outputSize }: LinearInit) {
+  constructor(
+    { inputSize, outputSize }: LinearInit,
+    private readonly wasmInstance: WebAssembly.Instance,
+  ) {
     const { memory, create, getNormWeight, getOutputWeight, getInputVector, getOutputVector } =
-      Linear.wasmSingleton.exports as WasmExports;
+      wasmInstance.exports as WasmExports;
 
     this.self = create(inputSize, outputSize);
 
@@ -47,15 +54,11 @@ export class Linear {
   }
 
   forward(): void {
-    const { forward } = Linear.wasmSingleton.exports as WasmExports;
-
-    forward(this.self);
+    (this.wasmInstance.exports as WasmExports).forward(this.self);
   }
 
   computeSoftmax(): void {
-    const { computeSoftmax } = Linear.wasmSingleton.exports as WasmExports;
-
-    computeSoftmax(this.self);
+    (this.wasmInstance.exports as WasmExports).computeSoftmax(this.self);
   }
 }
 
